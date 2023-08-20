@@ -6,8 +6,8 @@
   "type": "module",
   "exports": {
     "types": "./dist/index.d.ts",
-    "import": "./dist/es/index.js",
-    "default": "./dist/es/index.js"
+    "import": "./dist/index.js",
+    "default": "./dist/index.js"
   },
   "scripts": {
     "build": "npx tsc",
