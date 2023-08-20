@@ -1,0 +1,2 @@
+let memory = null;
+export {};

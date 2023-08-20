@@ -1,0 +1,26 @@
+{
+  "name": "basic-event-wasi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/es/index.js",
+    "default": "./dist/es/index.js"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "watch": "npx tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@rollup/plugin-typescript": "^11.1.2",
+    "rollup": "^3.28.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.1.6"
+  }
+}
