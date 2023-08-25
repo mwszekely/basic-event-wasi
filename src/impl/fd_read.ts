@@ -25,18 +25,18 @@ export class FileDescriptorReadEvent extends CustomEvent<FileDescriptorReadEvent
             detail: {
                 fileDescriptor,
                 requestedBuffers: requestedBufferInfo,
-                readIntoMemory:
-                    (inputBuffers) => {
-                        for (let i = 0; i < requestedBufferInfo.length; ++i) {
-                            if (i >= inputBuffers.length)
-                                break;
-                            const buffer = inputBuffers[i];
-                            for (let j = 0; j < Math.min(buffer.byteLength, inputBuffers[j].byteLength); ++j) {
-                                impl.writeUint8(requestedBufferInfo[i].bufferStart + j, inputBuffers[i][j]);
-                                ++this._bytesWritten;
-                            }
+                readIntoMemory: (inputBuffers) => {
+                    // 100% untested, probably doesn't work if I'm being honest
+                    for (let i = 0; i < requestedBufferInfo.length; ++i) {
+                        if (i >= inputBuffers.length)
+                            break;
+                        const buffer = inputBuffers[i];
+                        for (let j = 0; j < Math.min(buffer.byteLength, inputBuffers[j].byteLength); ++j) {
+                            impl.writeUint8(requestedBufferInfo[i].bufferStart + j, inputBuffers[i][j]);
+                            ++this._bytesWritten;
                         }
                     }
+                }
             }
         });
     }
@@ -55,7 +55,7 @@ export class UnhandledFileReadEvent extends Error {
 /** POSIX readv */
 export function fd_read(this: PrivateImpl, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number) {
     debugger;
-    
+
     let nWritten = 0;
     const gen = parseArray(this, iov, iovcnt);
 

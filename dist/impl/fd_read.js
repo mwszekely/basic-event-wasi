@@ -9,6 +9,7 @@ export class FileDescriptorReadEvent extends CustomEvent {
                 fileDescriptor,
                 requestedBuffers: requestedBufferInfo,
                 readIntoMemory: (inputBuffers) => {
+                    // 100% untested, probably doesn't work if I'm being honest
                     for (let i = 0; i < requestedBufferInfo.length; ++i) {
                         if (i >= inputBuffers.length)
                             break;
