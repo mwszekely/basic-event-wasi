@@ -1,3 +1,4 @@
+import "./__custom_event.js";
 import { errorno } from "./errorno.js";
 import { parseArray } from "./iovec.js";
 export class FileDescriptorWriteEvent extends CustomEvent {

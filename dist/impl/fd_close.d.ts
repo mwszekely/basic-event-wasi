@@ -1,4 +1,5 @@
 import { FileDescriptor, PrivateImpl } from "../types.js";
+import "./__custom_event.js";
 export interface FileDescriptorCloseEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.

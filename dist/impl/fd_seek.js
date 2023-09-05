@@ -1,3 +1,4 @@
+import "./__custom_event.js";
 import { errorno } from "./errorno.js";
 export class FileDescriptorSeekEvent extends CustomEvent {
     constructor(fileDescriptor) {

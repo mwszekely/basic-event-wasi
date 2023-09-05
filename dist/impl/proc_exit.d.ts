@@ -1,4 +1,5 @@
 import { PrivateImpl } from "../types.js";
+import "./__custom_event.js";
 export interface AbortEventDetail {
     code: number;
 }

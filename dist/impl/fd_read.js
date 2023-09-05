@@ -1,3 +1,4 @@
+import "./__custom_event.js";
 import { parseArray } from "./iovec.js";
 export class FileDescriptorReadEvent extends CustomEvent {
     _bytesWritten = 0;
