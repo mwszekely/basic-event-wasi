@@ -1,4 +1,4 @@
-import { EntirePublicWasiInterface } from "./types.js";
+import { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
 type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["instantiateStreaming"]>>;
 /**
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
@@ -25,9 +25,10 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base
  * @returns
  */
-export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: Pick<EntirePublicWasiInterface, K>): {
+export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>): {
     imports: {
         wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
+        env: Pick<EntirePublicEnvInterface, L>;
     };
     wasiReady: Promise<void>;
 };

@@ -1,4 +1,4 @@
-import { EntirePublicWasiInterface, PrivateImpl } from "./types.js";
+import { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface, PrivateImpl } from "./types.js";
 
 type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["instantiateStreaming"]>>
 
@@ -27,7 +27,7 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base 
  * @returns 
  */
-export function instantiateWasi<K extends keyof EntirePublicWasiInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: Pick<EntirePublicWasiInterface, K>) {
+export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>) {
     let resolve!: () => void;
     const p: PrivateImpl<K> = {
         instance: null!,
@@ -76,10 +76,11 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface>(wasmI
 
     // All the functions we've been passed were imported and haven't been bound yet.
     // Return a new object with each member bound to the private information we pass around.
-    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base).map(([key, func]) => { return [key, (func as Function).bind(p)] as const; })) as Pick<EntirePublicWasiInterface, K>;
+    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base.wasi_snapshot_preview1).map(([key, func]) => { return [key, (func as Function).bind(p)] as const; })) as Pick<EntirePublicWasiInterface, K>;
+    const env = Object.fromEntries(Object.entries(base.env).map(([key, func]) => { return [key, (func as Function).bind(p)] as const; })) as Pick<EntirePublicEnvInterface, L>;
 
     return {
-        imports: { wasi_snapshot_preview1 },
+        imports: { wasi_snapshot_preview1, env },
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
         wasiReady: new Promise<void>((res) => {resolve! = res})

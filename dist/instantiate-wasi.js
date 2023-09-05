@@ -67,9 +67,10 @@ export function instantiateWasi(wasmInstance, base) {
     });
     // All the functions we've been passed were imported and haven't been bound yet.
     // Return a new object with each member bound to the private information we pass around.
-    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base).map(([key, func]) => { return [key, func.bind(p)]; }));
+    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base.wasi_snapshot_preview1).map(([key, func]) => { return [key, func.bind(p)]; }));
+    const env = Object.fromEntries(Object.entries(base.env).map(([key, func]) => { return [key, func.bind(p)]; }));
     return {
-        imports: { wasi_snapshot_preview1 },
+        imports: { wasi_snapshot_preview1, env },
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
         wasiReady: new Promise((res) => { resolve = res; })

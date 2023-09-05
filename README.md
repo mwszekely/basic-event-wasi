@@ -1,7 +1,7 @@
 
 # Basic Event-Based WASI
 
-This is an *extremely* limited implementation of [WASI preview1](https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md), meant to be just enough to get basic code to link, and where appropriate attempt to use native browser APIs (e.g. mapping `fd_write` to `console.log` when appropriate).
+This is an *extremely* limited implementation of [WASI preview1](https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md), meant to be just enough to get basic code to link, and where appropriate attempt to use native browser APIs (e.g. mapping `fd_write` to `console.log` when appropriate). Some extras like Emscripten's `env.__throw_exception_with_stack_trace` are included as well.
 
 Most functions are dispatched as an `Event` on `globalThis`, and have default behavior if unhandled. For example, `fd_write` (called by `printf` and such) will default to `console.log` (if `stdout` was specified to be written to).  If you'd like to prevent this behavior to do something different, call `preventDefault` on the event.
 
@@ -16,10 +16,11 @@ In the table below, "default behavior" refers to what happens if `e.preventDefau
 |`fd_seek`|Event|No-op for stdin, stdout, stderr, returns `badfile` for other descriptors|
 |`environ_get`|No-op|Nothing|
 |`environ_sizes_get`|No-op|Nothing|
+|`__throw_exception_with_stack_trace`|Event|Nothing|
 
 ## To use:
 
-This assumes you used `Emscripten` to compile some source to a `.wasm` file ***and not*** to a `.js`+`.wasm` combo, because `Emscripten`'s `.js` code takes care of all of this for you already.
+This assumes you used `Emscripten` to compile some source to a `.wasm` file ***and not*** to a `.js`+`.wasm` combo, because `Emscripten`'s `.js` code takes care of all of this for you already and is far more complete than this library is.
 
 Assuming you've compiled straight to a `.wasm` file (i.e. implying `-sSTANDALONE_WASM=1`):
 

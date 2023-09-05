@@ -1,7 +1,8 @@
+import { __throw_exception_with_stack_trace, fd_write, proc_exit } from "./index.js";
 /** @alias fd */
 export type FileDescriptor = number;
 export type Pointer<T> = number;
-export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never> {
+export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, L extends keyof EntirePublicEnvInterface = never> {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
     getMemory(): DataView;
@@ -27,9 +28,16 @@ export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never> 
     writeUint8(ptr: Pointer<number>, value: number): void;
     readInt8(ptr: Pointer<number>): number;
     writeInt8(ptr: Pointer<number>, value: number): void;
-    wasiSubset: Pick<EntirePublicWasiInterface, K>;
+    wasiSubset: EntirePublicInterface<K, L>;
 }
 export interface EntirePublicWasiInterface {
-    proc_exit(code: number): void;
-    fd_write(fd: number, iov: number, iovcnt: number, pnum: number): number;
+    proc_exit: typeof proc_exit;
+    fd_write: typeof fd_write;
+}
+export interface EntirePublicEnvInterface {
+    __throw_exception_with_stack_trace: typeof __throw_exception_with_stack_trace;
+}
+export interface EntirePublicInterface<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
+    wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
+    env: Pick<EntirePublicEnvInterface, L>;
 }
