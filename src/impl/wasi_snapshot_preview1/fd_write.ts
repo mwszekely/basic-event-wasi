@@ -1,7 +1,7 @@
-import { FileDescriptor, PrivateImpl } from "../types.js";
-import "./__custom_event.js";
-import { errorno } from "./errorno.js";
-import { parseArray } from "./iovec.js";
+import { FileDescriptor, PrivateImpl } from "../../types.js";
+import { errorno } from "../errorno.js";
+import { parseArray } from "../iovec.js";
+import "./custom_event.js";
 
 export interface FileDescriptorWriteEventDetail {
     /**

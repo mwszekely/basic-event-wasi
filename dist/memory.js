@@ -1,2 +1,0 @@
-let memory = null;
-export {};

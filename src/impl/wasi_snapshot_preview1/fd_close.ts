@@ -1,5 +1,5 @@
-import { FileDescriptor, PrivateImpl } from "../types.js";
-import "./__custom_event.js";
+import { FileDescriptor, PrivateImpl } from "../../types.js";
+import "./custom_event.js";
 
 export interface FileDescriptorCloseEventDetail {
     /**

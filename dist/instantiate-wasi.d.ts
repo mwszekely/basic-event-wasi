@@ -25,7 +25,9 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base
  * @returns
  */
-export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>): {
+export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }?: {
+    dispatchEvent?(event: Event): boolean;
+}): {
     imports: {
         wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
         env: Pick<EntirePublicEnvInterface, L>;

@@ -1,6 +1,6 @@
-import { FileDescriptor, PrivateImpl } from "../types.js";
-import "./__custom_event.js";
-import { Iovec } from "./iovec.js";
+import { FileDescriptor, PrivateImpl } from "../../types.js";
+import { Iovec } from "../iovec.js";
+import "./custom_event.js";
 export interface FileDescriptorReadEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.

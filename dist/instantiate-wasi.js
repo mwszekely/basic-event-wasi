@@ -23,7 +23,16 @@
  * @param base
  * @returns
  */
-export function instantiateWasi(wasmInstance, base) {
+export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
+    dispatchEvent ??= function dispatchEvent(event) {
+        if ("dispatchEvent" in globalThis) {
+            return globalThis.dispatchEvent(event);
+        }
+        else {
+            console.warn(`Unhandled event: ${event}`);
+            return false;
+        }
+    };
     let resolve;
     const p = {
         instance: null,
@@ -50,7 +59,7 @@ export function instantiateWasi(wasmInstance, base) {
         // TODO on both of these
         readPointer(ptr) { return p.getMemory().getUint32(ptr, true); },
         getPointerSize() { return 4; },
-        dispatchEvent(e) { return globalThis.dispatchEvent(e); }
+        dispatchEvent(e) { return dispatchEvent(e); }
     };
     wasmInstance.then(({ instance, module }) => {
         p.instance = instance;

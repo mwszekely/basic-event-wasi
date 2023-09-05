@@ -22,5 +22,4 @@ globalThis.CustomEvent ??= class CustomEvent<T = any> extends Event {
     initCustomEvent(type: string, bubbles?: boolean, cancelable?: boolean, detail?: T): void { 
         this.detail = (detail ?? this.detail)!;
     }
-
 }

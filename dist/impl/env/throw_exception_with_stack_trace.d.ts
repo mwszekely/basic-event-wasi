@@ -1,4 +1,4 @@
-import type { PrivateImpl } from "../types.js";
+import type { PrivateImpl } from "../../types.js";
 export interface WebAssemblyExceptionEventDetail {
     exception: any;
 }

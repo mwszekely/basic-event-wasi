@@ -1,6 +1,6 @@
-import { FileDescriptor, Pointer, PrivateImpl } from "../types.js";
-import "./__custom_event.js";
-import { errorno } from "./errorno.js";
+import { FileDescriptor, Pointer, PrivateImpl } from "../../types.js";
+import { errorno } from "../errorno.js";
+import "./custom_event.js";
 
 export interface FileDescriptorSeekEventDetail {
     /**

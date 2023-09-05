@@ -1,7 +1,6 @@
-import { FileDescriptor, Pointer, PrivateImpl } from "../types.js";
-import "./__custom_event.js";
-import { errorno } from "./errorno.js";
-export interface FileDescriptorSeekEventDetail {
+import { FileDescriptor, PrivateImpl } from "../../types.js";
+import "./custom_event.js";
+export interface FileDescriptorCloseEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.
      *
@@ -10,8 +9,8 @@ export interface FileDescriptorSeekEventDetail {
      */
     fileDescriptor: number;
 }
-export declare class FileDescriptorSeekEvent extends CustomEvent<FileDescriptorSeekEventDetail> {
+export declare class FileDescriptorCloseEvent extends CustomEvent<FileDescriptorCloseEventDetail> {
     constructor(fileDescriptor: number);
 }
-/** POSIX lseek */
-export declare function fd_seek(this: PrivateImpl, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): 0 | errorno.badf;
+/** POSIX close */
+export declare function fd_close(this: PrivateImpl, fd: FileDescriptor): void;

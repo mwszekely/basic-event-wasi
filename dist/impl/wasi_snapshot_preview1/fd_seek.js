@@ -1,5 +1,5 @@
-import "./__custom_event.js";
-import { errorno } from "./errorno.js";
+import { errorno } from "../errorno.js";
+import "./custom_event.js";
 export class FileDescriptorSeekEvent extends CustomEvent {
     constructor(fileDescriptor) {
         super("FileDescriptorSeekEvent", { cancelable: true, detail: { fileDescriptor } });

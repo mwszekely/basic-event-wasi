@@ -27,7 +27,17 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base 
  * @returns 
  */
-export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>) {
+export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }: { dispatchEvent?(event: Event): boolean } = {}) {
+    dispatchEvent ??= function dispatchEvent(event) {
+        if ("dispatchEvent" in globalThis) {
+            return globalThis.dispatchEvent(event);
+        }
+        else {
+            console.warn(`Unhandled event: ${event}`);
+            return false;
+        }
+    };
+
     let resolve!: () => void;
     const p: PrivateImpl<K> = {
         instance: null!,
@@ -58,7 +68,7 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         readPointer(ptr) { return p.getMemory().getUint32(ptr, true); },
         getPointerSize() { return 4; },
 
-        dispatchEvent(e) { return globalThis.dispatchEvent(e); }
+        dispatchEvent(e) { return dispatchEvent!(e); }
     }
     wasmInstance.then(({ instance, module }) => {
         p.instance = instance;
@@ -83,6 +93,6 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         imports: { wasi_snapshot_preview1, env },
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
-        wasiReady: new Promise<void>((res) => {resolve! = res})
+        wasiReady: new Promise<void>((res) => { resolve! = res })
     };
 }

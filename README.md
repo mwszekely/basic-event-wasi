@@ -17,6 +17,7 @@ In the table below, "default behavior" refers to what happens if `e.preventDefau
 |`environ_get`|No-op|Nothing|
 |`environ_sizes_get`|No-op|Nothing|
 |`__throw_exception_with_stack_trace`|Event|Nothing|
+|`emscripten_notify_memory_growth`|Event|Nothing|
 
 ## To use:
 
