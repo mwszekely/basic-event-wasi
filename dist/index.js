@@ -5,4 +5,5 @@ export { fd_read } from "./impl/fd_read.js";
 export { fd_seek } from "./impl/fd_seek.js";
 export { fd_write } from "./impl/fd_write.js";
 export { proc_exit } from "./impl/proc_exit.js";
+export { __throw_exception_with_stack_trace } from "./impl/throw_exception_with_stack_trace.js";
 export { instantiateWasi } from "./instantiate-wasi.js";
