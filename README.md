@@ -1,7 +1,7 @@
 
 # Basic Event-Based WASI
 
-This is an *extremely* limited implementation of [WASI preview1](https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md), meant to be just enough to get basic code to link, and where appropriate attempt to use native browser APIs (e.g. mapping `fd_write` to `console.log` when appropriate). Some extras like Emscripten's `env.__throw_exception_with_stack_trace` are included as well.
+This is an *extremely* limited implementation of [WASI preview1](https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md), meant to be just enough to get basic code to link, and where appropriate attempt to use native browser APIs (e.g. mapping `fd_write` to `console.log` when appropriate). Some extras like Emscripten's `env.__throw_exception_with_stack_trace` and `env.emscripten_notify_memory_growth` are included as well.
 
 Most functions are dispatched as an `Event` on `globalThis`, and have default behavior if unhandled. For example, `fd_write` (called by `printf` and such) will default to `console.log` (if `stdout` was specified to be written to).  If you'd like to prevent this behavior to do something different, call `preventDefault` on the event.
 
@@ -18,6 +18,8 @@ In the table below, "default behavior" refers to what happens if `e.preventDefau
 |`environ_sizes_get`|No-op|Nothing|
 |`__throw_exception_with_stack_trace`|Event|Nothing|
 |`emscripten_notify_memory_growth`|Event|Nothing|
+
+Note that in `Worklet`s and some other contexts don't have access to `dispatchEvent`. In these cases, you can provide your own `dispatchEvent`, and the default will log a warning to the console.
 
 ## To use:
 
