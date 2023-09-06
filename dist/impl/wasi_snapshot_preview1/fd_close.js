@@ -1,4 +1,4 @@
-import "./custom_event.js";
+import "../custom_event.js";
 export class FileDescriptorCloseEvent extends CustomEvent {
     constructor(fileDescriptor) {
         super("FileDescriptorCloseEvent", { cancelable: true, detail: { fileDescriptor } });

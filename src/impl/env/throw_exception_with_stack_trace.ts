@@ -1,4 +1,5 @@
 import type { PrivateImpl } from "../../types.js";
+import "../custom_event.js";
 
 export interface WebAssemblyExceptionEventDetail { exception: any }
 

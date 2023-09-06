@@ -1,4 +1,4 @@
-import "./custom_event.js";
+import "../custom_event.js";
 export class AbortEvent extends CustomEvent {
     code;
     constructor(code) {

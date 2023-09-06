@@ -1,6 +1,6 @@
+import "../custom_event.js";
 import { errorno } from "../errorno.js";
 import { parseArray } from "../iovec.js";
-import "./custom_event.js";
 export class FileDescriptorWriteEvent extends CustomEvent {
     constructor(fileDescriptor, data) {
         super("FileDescriptorWriteEvent", { bubbles: false, cancelable: true, detail: { data, fileDescriptor } });

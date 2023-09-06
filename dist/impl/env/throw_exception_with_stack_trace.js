@@ -1,3 +1,4 @@
+import "../custom_event.js";
 export class WebAssemblyExceptionEvent extends CustomEvent {
     constructor(impl, exception) {
         super("WebAssemblyExceptionEvent", { cancelable: false, detail: { exception } });
