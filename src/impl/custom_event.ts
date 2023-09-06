@@ -1,3 +1,4 @@
+import "./event.js";
 
 // Did you know that CustomEvent isn't defined in Worklets? Fun!!
 globalThis.CustomEvent ??= class CustomEvent<T = any> extends Event {

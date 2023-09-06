@@ -1,3 +1,4 @@
+import "./event.js";
 // Did you know that CustomEvent isn't defined in Worklets? Fun!!
 globalThis.CustomEvent ??= class CustomEvent extends Event {
     constructor(type, eventInitDict) {
@@ -19,4 +20,3 @@ globalThis.CustomEvent ??= class CustomEvent extends Event {
         this.detail = (detail ?? this.detail);
     }
 };
-export {};
