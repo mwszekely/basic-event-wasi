@@ -1,5 +1,4 @@
-import { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
-type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["instantiateStreaming"]>>;
+import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
 /**
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  *
@@ -8,7 +7,7 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @remarks Intended usage:
  *
  * ```typescript
- * import { fd_write, proc_exit } from "whatever-this-lib-is-called"
+ * import { fd_write, proc_exit } from "basic-event-wasi"
  * // Waiting for https://github.com/tc39/proposal-promise-with-resolvers...
  * let resolve: (info: WebAssemblyInstantiatedSource) => void;
  * let reject: (error: any) => void;
@@ -25,13 +24,12 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base
  * @returns
  */
-export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }?: {
+export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }?: {
     dispatchEvent?(event: Event): boolean;
 }): {
     imports: {
         wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
         env: Pick<EntirePublicEnvInterface, L>;
     };
-    wasiReady: Promise<void>;
+    wasiReady: Promise<WebAssembly.WebAssemblyInstantiatedSource>;
 };
-export {};

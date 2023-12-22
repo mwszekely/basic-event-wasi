@@ -6,7 +6,7 @@
  * @remarks Intended usage:
  *
  * ```typescript
- * import { fd_write, proc_exit } from "whatever-this-lib-is-called"
+ * import { fd_write, proc_exit } from "basic-event-wasi"
  * // Waiting for https://github.com/tc39/proposal-promise-with-resolvers...
  * let resolve: (info: WebAssemblyInstantiatedSource) => void;
  * let reject: (error: any) => void;
@@ -24,6 +24,9 @@
  * @returns
  */
 export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
+    if (!dispatchEvent && !("dispatchEvent" in globalThis)) {
+        console.warn(`globalThis.dispatchEvent does not exist here -- events from WebAssembly will go unhandled.`);
+    }
     dispatchEvent ??= function dispatchEvent(event) {
         if ("dispatchEvent" in globalThis) {
             return globalThis.dispatchEvent(event);
@@ -61,10 +64,10 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
         getPointerSize() { return 4; },
         dispatchEvent(e) { return dispatchEvent(e); }
     };
-    wasmInstance.then(({ instance, module }) => {
+    wasmInstance.then((obj) => {
+        const { instance, module } = obj;
         p.instance = instance;
         p.module = module;
-        debugger;
         console.assert(("_initialize" in p.instance.exports) != "_start" in p.instance.exports);
         if ("_initialize" in p.instance.exports) {
             p.instance.exports._initialize();
@@ -72,7 +75,7 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
         else if ("_start" in p.instance.exports) {
             p.instance.exports._start();
         }
-        resolve();
+        resolve(obj);
     });
     // All the functions we've been passed were imported and haven't been bound yet.
     // Return a new object with each member bound to the private information we pass around.

@@ -14,8 +14,8 @@ In the table below, "default behavior" refers to what happens if `e.preventDefau
 |`fd_read`|Event|Reads `window.prompt` as stdin, or returns `badfile` for other descriptors|
 |`fd_close`|Event|Nothing|
 |`fd_seek`|Event|No-op for stdin, stdout, stderr, returns `badfile` for other descriptors|
-|`environ_get`|No-op|Nothing|
-|`environ_sizes_get`|No-op|Nothing|
+|`environ_get`|No-op|Returns `nullptr`|
+|`environ_sizes_get`|No-op|Returns 0|
 |`__throw_exception_with_stack_trace`|Event|Nothing|
 |`emscripten_notify_memory_growth`|Event|Nothing|
 
@@ -25,26 +25,31 @@ Note that in `Worklet`s and some other contexts don't have access to `dispatchEv
 
 This assumes you used `Emscripten` to compile some source to a `.wasm` file ***and not*** to a `.js`+`.wasm` combo, because `Emscripten`'s `.js` code takes care of all of this for you already and is far more complete than this library is.
 
-Assuming you've compiled straight to a `.wasm` file (i.e. implying `-sSTANDALONE_WASM=1`):
+Assuming you've compiled straight to a `.wasm` file (e.g. `-o module.wasm`):
 
 ```typescript
 // Import whatever functions you want.
 // Fully tree-shakable and dead-code-eliminate-able and such.
 // (some of these talk to each other through shared global state, which `instantiateWasi` below takes care of for you)
-import { fd_write, proc_exit } from "basic-event-wasi" 
+import { fd_write, proc_exit } from "basic-event-wasi"
 
-// WASI needs to know when WASM is ready, and WASM needs to know when WASI is ready,
-// so there's a little bit of juggling promises around:
-// The wasmReady promise resolves once the WASM has loaded
-// WASI needs it because it needs access to its memory array and other things.
+const source = fetch("./module.wasm");
+
+// Simplest: Compile WASM and WASI from the same streaming source.
+await instantiateStreamingWithWasi(source, { wasi_snapshot_preview1: { fd_write, proc_exit } });
+
+// But if you need to handle the WebAssembly.instantiateStreaming step yourself? Sure:
 const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers<WebAssemblyInstantiatedSource>();
-
-// The wasiReady promise resolves immediately after the wasmReady promise resolves,
-// but it runs some initialization code so it's import to wait for it too.
-const { imports, wasiReady } = instantiateWasi(wasmReady.then(s => s.instance), { fd_write, proc_exit });
-await WebAssembly.instantiateStreaming(source, { ...imports }); // (Mix in other imports if you got 'em too)
-resolveWasm();
+const { imports, wasiReady } = instantiateWasi(wasmReady, { fd_write, proc_exit });
+resolveWasm(await WebAssembly.instantiateStreaming(source, imports));
 await wasiReady;
-// Now anything that relies on WASI can be called
-
+// (The reason it's a bit more complicated is because WASM and WASI depend on each other circularly --
+// WASM needs to have the WASI imports at compile-time,
+// but WASI needs a reference to the WASM `Memory` object and such so it knows how to do its job)
 ```
+
+
+
+## Why?
+
+Just to see what it takes to load a bare-bones .wasm file.

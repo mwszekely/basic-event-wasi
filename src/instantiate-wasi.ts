@@ -1,6 +1,5 @@
-import { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface, PrivateImpl } from "./types.js";
+import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface, PrivateImpl } from "./types.js";
 
-type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["instantiateStreaming"]>>
 
 /**
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
@@ -10,7 +9,7 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @remarks Intended usage:
  * 
  * ```typescript
- * import { fd_write, proc_exit } from "whatever-this-lib-is-called" 
+ * import { fd_write, proc_exit } from "basic-event-wasi" 
  * // Waiting for https://github.com/tc39/proposal-promise-with-resolvers...
  * let resolve: (info: WebAssemblyInstantiatedSource) => void;
  * let reject: (error: any) => void;
@@ -27,7 +26,11 @@ type WebAssemblyInstantiatedSource = Awaited<ReturnType<(typeof WebAssembly)["in
  * @param base 
  * @returns 
  */
-export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }: { dispatchEvent?(event: Event): boolean } = {}) {
+export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }: { dispatchEvent?(event: Event): boolean } = {}) {
+    if (!dispatchEvent && !("dispatchEvent" in globalThis)) {
+        console.warn(`globalThis.dispatchEvent does not exist here -- events from WebAssembly will go unhandled.`);
+    }
+
     dispatchEvent ??= function dispatchEvent(event) {
         if ("dispatchEvent" in globalThis) {
             return globalThis.dispatchEvent(event);
@@ -38,7 +41,7 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         }
     };
 
-    let resolve!: () => void;
+    let resolve!: (value: WebAssembly.WebAssemblyInstantiatedSource) => void;
     const p: PrivateImpl<K> = {
         instance: null!,
         module: null!,
@@ -70,10 +73,10 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
 
         dispatchEvent(e) { return dispatchEvent!(e); }
     }
-    wasmInstance.then(({ instance, module }) => {
+    wasmInstance.then((obj) => {
+        const { instance, module } = obj;
         p.instance = instance;
         p.module = module;
-        debugger;
         console.assert(("_initialize" in p.instance.exports) != "_start" in p.instance.exports);
         if ("_initialize" in p.instance.exports) {
             (p.instance.exports as any)._initialize();
@@ -81,7 +84,7 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         else if ("_start" in p.instance.exports) {
             (p.instance.exports as any)._start();
         }
-        resolve();
+        resolve(obj);
     });
 
     // All the functions we've been passed were imported and haven't been bound yet.
@@ -93,6 +96,6 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         imports: { wasi_snapshot_preview1, env },
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
-        wasiReady: new Promise<void>((res) => { resolve! = res })
+        wasiReady: new Promise<WebAssembly.WebAssemblyInstantiatedSource>((res) => { resolve! = res })
     };
 }

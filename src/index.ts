@@ -9,11 +9,9 @@ export { fd_seek } from "./impl/wasi_snapshot_preview1/fd_seek.js"
 export { fd_write } from "./impl/wasi_snapshot_preview1/fd_write.js"
 export { proc_exit } from "./impl/wasi_snapshot_preview1/proc_exit.js"
 export { instantiateWasi } from "./instantiate-wasi.js"
+export { instantiateStreamingWithWasi } from "./instantiate-wasm.js"
 
-export const KnownExports = {
-    "wasi_snapshot_preview1": ["environ_get", "environ_sizes_get", "fd_close", "fd_read", "fd_seek", "fd_write", "proc_exit"],
-    "env": ["emscripten_notify_memory_growth", "__throw_exception_with_stack_trace"]
-} as const;
+export { KnownExports } from "./types.js"
 
 export type { MemoryGrowthEvent, MemoryGrowthEventDetail } from "./impl/env/emscripten_notify_memory_growth.js"
 export type { WebAssemblyExceptionEvent, WebAssemblyExceptionEventDetail } from "./impl/env/throw_exception_with_stack_trace.js"
