@@ -23,8 +23,9 @@ export type Pointer<T> = number;
 export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, L extends keyof EntirePublicEnvInterface = never> {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
-    getMemory(): DataView;
-    getPointerSize(): 4;
+    cachedMemoryView: DataView | null;
+    //getMemory(): DataView;
+    //getPointerSize(): 4;
 
     /**
      * A return of `false` means the event was cancelled; i.e. `preventDefault` was called.
@@ -32,7 +33,7 @@ export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, 
     dispatchEvent(e: Event): boolean;
 
     
-    readPointer<T>(ptr: Pointer<Pointer<T>>): Pointer<T>;
+    /*readPointer<T>(ptr: Pointer<Pointer<T>>): Pointer<T>;
 
     readUint64(ptr: Pointer<bigint>): bigint;
     writeUint64(ptr: Pointer<bigint>, value: bigint): void;
@@ -55,7 +56,7 @@ export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, 
     readUint8(ptr: Pointer<number>): number;
     writeUint8(ptr: Pointer<number>, value: number): void;
     readInt8(ptr: Pointer<number>): number;
-    writeInt8(ptr: Pointer<number>, value: number): void;
+    writeInt8(ptr: Pointer<number>, value: number): void;*/
     
     wasiSubset: EntirePublicInterface<K, L>;
 }

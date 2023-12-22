@@ -1,3 +1,4 @@
+const wasi = Symbol("wasi-impl");
 /**
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  *
@@ -41,33 +42,15 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
         instance: null,
         module: null,
         wasiSubset: base,
-        getMemory() { return new DataView(p.instance.exports.memory.buffer); },
-        // wasm is little endian by default, and DataView is big endian by default.............
-        readUint64(ptr) { return p.getMemory().getBigUint64(ptr, true); },
-        readInt64(ptr) { return p.getMemory().getBigInt64(ptr, true); },
-        readUint32(ptr) { return p.getMemory().getUint32(ptr, true); },
-        readInt32(ptr) { return p.getMemory().getInt32(ptr, true); },
-        readUint16(ptr) { return p.getMemory().getUint16(ptr, true); },
-        readInt16(ptr) { return p.getMemory().getInt16(ptr, true); },
-        readUint8(ptr) { return p.getMemory().getUint8(ptr); },
-        readInt8(ptr) { return p.getMemory().getInt8(ptr); },
-        writeUint64(ptr, value) { return p.getMemory().setBigUint64(ptr, value, true); },
-        writeInt64(ptr, value) { return p.getMemory().setBigInt64(ptr, value, true); },
-        writeUint32(ptr, value) { return p.getMemory().setUint32(ptr, value, true); },
-        writeInt32(ptr, value) { return p.getMemory().setInt32(ptr, value, true); },
-        writeUint16(ptr, value) { return p.getMemory().setUint16(ptr, value, true); },
-        writeInt16(ptr, value) { return p.getMemory().setInt16(ptr, value, true); },
-        writeUint8(ptr, value) { return p.getMemory().setUint8(ptr, value); },
-        writeInt8(ptr, value) { return p.getMemory().setInt8(ptr, value); },
-        // TODO on both of these
-        readPointer(ptr) { return p.getMemory().getUint32(ptr, true); },
-        getPointerSize() { return 4; },
+        cachedMemoryView: null,
         dispatchEvent(e) { return dispatchEvent(e); }
     };
     wasmInstance.then((obj) => {
         const { instance, module } = obj;
         p.instance = instance;
         p.module = module;
+        instance[wasi] = p;
+        p.cachedMemoryView = new DataView(instance.exports.memory.buffer);
         console.assert(("_initialize" in p.instance.exports) != "_start" in p.instance.exports);
         if ("_initialize" in p.instance.exports) {
             p.instance.exports._initialize();
@@ -87,4 +70,7 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
         // It resolves immediately after the input promise to the instance&module resolves
         wasiReady: new Promise((res) => { resolve = res; })
     };
+}
+export function getImpl(instance) {
+    return instance[wasi];
 }

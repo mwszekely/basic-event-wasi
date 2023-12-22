@@ -1,4 +1,5 @@
 import { PrivateImpl } from "../types.js";
+import { getPointerSize, readPointer, readUint32 } from "../util.js";
 
 export interface Iovec {
     bufferStart: number;
@@ -7,13 +8,13 @@ export interface Iovec {
 
 export function parse(info: PrivateImpl, ptr: number): Iovec {
     return {
-        bufferStart: info.readPointer(ptr),
-        bufferLength: info.readUint32(ptr + info.getPointerSize())
+        bufferStart: readPointer(info.instance, ptr),
+        bufferLength: readUint32(info.instance, ptr + getPointerSize(info.instance))
     }
 }
 
 export function* parseArray(info: PrivateImpl, ptr: number, count: number) {
-    const sizeofStruct = info.getPointerSize() + 4;
+    const sizeofStruct = getPointerSize(info.instance) + 4;
     for (let i = 0; i < count; ++i) {
         yield parse(info, ptr + (i * sizeofStruct))
     }

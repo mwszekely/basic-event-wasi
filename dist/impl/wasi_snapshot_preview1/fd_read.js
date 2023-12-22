@@ -1,3 +1,4 @@
+import { writeUint32, writeUint8 } from "../../util.js";
 import "../custom_event.js";
 import { parseArray } from "../iovec.js";
 export class FileDescriptorReadEvent extends CustomEvent {
@@ -16,7 +17,7 @@ export class FileDescriptorReadEvent extends CustomEvent {
                             break;
                         const buffer = inputBuffers[i];
                         for (let j = 0; j < Math.min(buffer.byteLength, inputBuffers[j].byteLength); ++j) {
-                            impl.writeUint8(requestedBufferInfo[i].bufferStart + j, inputBuffers[i][j]);
+                            writeUint8(impl.instance, requestedBufferInfo[i].bufferStart + j, inputBuffers[i][j]);
                             ++this._bytesWritten;
                         }
                     }
@@ -52,7 +53,7 @@ export function fd_read(fd, iov, iovcnt, pnum) {
     else {
         nWritten = event.bytesWritten();
     }
-    this.writeUint32(pnum, nWritten);
+    writeUint32(this.instance, pnum, nWritten);
     return 0;
 }
 const textDecoders = new Map();

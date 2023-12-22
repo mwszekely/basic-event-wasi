@@ -1,4 +1,5 @@
 import { FileDescriptor, PrivateImpl } from "../../types.js";
+import { getMemory, writeUint32 } from "../../util.js";
 import "../custom_event.js";
 import { errorno } from "../errorno.js";
 import { parseArray } from "../iovec.js";
@@ -42,7 +43,7 @@ export function fd_write(this: PrivateImpl, fd: FileDescriptor, iov: number, iov
     const gen = parseArray(this, iov, iovcnt);
 
     // Get all the data to write in its separate buffers
-    const asTypedArrays = [...gen].map(({ bufferStart, bufferLength }) => { nWritten += bufferLength; return new Uint8Array(this.getMemory().buffer, bufferStart, bufferLength) });
+    const asTypedArrays = [...gen].map(({ bufferStart, bufferLength }) => { nWritten += bufferLength; return new Uint8Array(getMemory(this.instance).buffer, bufferStart, bufferLength) });
 
     const event = new FileDescriptorWriteEvent(fd, asTypedArrays);
     if (this.dispatchEvent(event)) {
@@ -55,7 +56,7 @@ export function fd_write(this: PrivateImpl, fd: FileDescriptor, iov: number, iov
             return errorno.badf;
     }
 
-    this.writeUint32(pnum, nWritten);
+    writeUint32(this.instance, pnum, nWritten);
 
     return 0;
 }

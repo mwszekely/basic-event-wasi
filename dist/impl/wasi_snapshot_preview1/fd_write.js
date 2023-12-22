@@ -1,3 +1,4 @@
+import { getMemory, writeUint32 } from "../../util.js";
 import "../custom_event.js";
 import { errorno } from "../errorno.js";
 import { parseArray } from "../iovec.js";
@@ -24,7 +25,7 @@ export function fd_write(fd, iov, iovcnt, pnum) {
     let nWritten = 0;
     const gen = parseArray(this, iov, iovcnt);
     // Get all the data to write in its separate buffers
-    const asTypedArrays = [...gen].map(({ bufferStart, bufferLength }) => { nWritten += bufferLength; return new Uint8Array(this.getMemory().buffer, bufferStart, bufferLength); });
+    const asTypedArrays = [...gen].map(({ bufferStart, bufferLength }) => { nWritten += bufferLength; return new Uint8Array(getMemory(this.instance).buffer, bufferStart, bufferLength); });
     const event = new FileDescriptorWriteEvent(fd, asTypedArrays);
     if (this.dispatchEvent(event)) {
         const str = event.asString("utf-8");
@@ -35,7 +36,7 @@ export function fd_write(fd, iov, iovcnt, pnum) {
         else
             return errorno.badf;
     }
-    this.writeUint32(pnum, nWritten);
+    writeUint32(this.instance, pnum, nWritten);
     return 0;
 }
 const textDecoders = new Map();

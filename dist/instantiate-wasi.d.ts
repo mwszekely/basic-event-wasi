@@ -1,4 +1,4 @@
-import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
+import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface, PrivateImpl } from "./types.js";
 /**
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  *
@@ -33,3 +33,4 @@ export declare function instantiateWasi<K extends keyof EntirePublicWasiInterfac
     };
     wasiReady: Promise<WebAssembly.WebAssemblyInstantiatedSource>;
 };
+export declare function getImpl(instance: WebAssembly.Instance): PrivateImpl<never, never>;
