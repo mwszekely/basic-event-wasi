@@ -19,6 +19,7 @@ export interface KnownInstanceExports {
     free(ptr: number): void;
     malloc(size: number): number;
     realloc(ptr: number, size: number) : number;
+    memory: WebAssembly.Memory;
 }
 
 
