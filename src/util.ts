@@ -1,5 +1,5 @@
 import { getImpl } from "./instantiate-wasi.js";
-import { Pointer } from "./types.js";
+import type { KnownInstanceExports, Pointer } from "./types.js";
 
 export function getMemory(instance: WebAssembly.Instance) {
     return getImpl(instance).cachedMemoryView!;
@@ -30,3 +30,7 @@ export function writeInt8(instance: WebAssembly.Instance, ptr: Pointer<number>, 
 
 export function readPointer(instance: WebAssembly.Instance, ptr: Pointer<number>) { return getMemory(instance).getUint32(ptr, true); }
 export function getPointerSize(_instance: WebAssembly.Instance) { return 4; }
+
+export function getInstanceExports(instance: WebAssembly.Instance) {
+    return instance.exports as unknown as KnownInstanceExports;
+}

@@ -23,3 +23,6 @@ export function writeUint8(instance, ptr, value) { return getMemory(instance).se
 export function writeInt8(instance, ptr, value) { return getMemory(instance).setInt8(ptr, value); }
 export function readPointer(instance, ptr) { return getMemory(instance).getUint32(ptr, true); }
 export function getPointerSize(_instance) { return 4; }
+export function getInstanceExports(instance) {
+    return instance.exports;
+}

@@ -15,6 +15,13 @@ export type FileDescriptor = number;
 
 export type Pointer<T> = number;
 
+export interface KnownInstanceExports {
+    free(ptr: number): void;
+    malloc(size: number): number;
+    realloc(ptr: number, size: number) : number;
+}
+
+
 /**
  * Any WASI function will have `this` set to a `PrivateImpl` representing its global state.
  * 

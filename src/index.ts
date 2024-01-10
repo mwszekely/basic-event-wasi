@@ -13,6 +13,7 @@ export { instantiateStreamingWithWasi } from "./instantiate-wasm.js"
 
 export {
     copyToWasm,
+    getInstanceExports,
     getMemory,
     getPointerSize,
     readInt16,
@@ -34,8 +35,13 @@ export {
     writeUint8
 } from "./util.js"
 
+export {
+    NativeInt16Array, NativeInt32Array, NativeInt8Array,
+    NativeUint16Array, NativeUint32Array, NativeUint8Array,
+    NativeUint8ClampedArray
+} from "./native-array.js"
 
-export { KnownExports } from "./types.js"
+export { KnownExports, type KnownInstanceExports } from "./types.js"
 
 export type { MemoryGrowthEvent, MemoryGrowthEventDetail } from "./impl/env/emscripten_notify_memory_growth.js"
 export type { WebAssemblyExceptionEvent, WebAssemblyExceptionEventDetail } from "./impl/env/throw_exception_with_stack_trace.js"

@@ -1,4 +1,4 @@
-import { Pointer } from "./types.js";
+import type { KnownInstanceExports, Pointer } from "./types.js";
 export declare function getMemory(instance: WebAssembly.Instance): DataView;
 export declare function copyToWasm(instance: WebAssembly.Instance, destinationAddress: Pointer<number>, sourceData: Uint8Array | Int8Array): void;
 export declare function readUint64(instance: WebAssembly.Instance, ptr: Pointer<number>): bigint;
@@ -19,3 +19,4 @@ export declare function writeUint8(instance: WebAssembly.Instance, ptr: Pointer<
 export declare function writeInt8(instance: WebAssembly.Instance, ptr: Pointer<number>, value: number): void;
 export declare function readPointer(instance: WebAssembly.Instance, ptr: Pointer<number>): number;
 export declare function getPointerSize(_instance: WebAssembly.Instance): number;
+export declare function getInstanceExports(instance: WebAssembly.Instance): KnownInstanceExports;
