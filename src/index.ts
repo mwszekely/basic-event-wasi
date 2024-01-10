@@ -41,7 +41,7 @@ export {
     NativeUint8ClampedArray
 } from "./native-array.js"
 
-export { KnownExports, type KnownInstanceExports } from "./types.js"
+export { KnownExports, type KnownInstanceExports, type Pointer } from "./types.js"
 
 export type { MemoryGrowthEvent, MemoryGrowthEventDetail } from "./impl/env/emscripten_notify_memory_growth.js"
 export type { WebAssemblyExceptionEvent, WebAssemblyExceptionEventDetail } from "./impl/env/throw_exception_with_stack_trace.js"
