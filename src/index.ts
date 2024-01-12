@@ -9,7 +9,7 @@ export { fd_seek } from "./impl/wasi_snapshot_preview1/fd_seek.js"
 export { fd_write } from "./impl/wasi_snapshot_preview1/fd_write.js"
 export { proc_exit } from "./impl/wasi_snapshot_preview1/proc_exit.js"
 export { instantiateWasi } from "./instantiate-wasi.js"
-export { instantiateStreamingWithWasi } from "./instantiate-wasm.js"
+export { RollupWasmPromise, instantiateFromRollupWithWasi, instantiateStreamingWithWasi, instantiateWithWasi } from "./instantiate-wasm.js"
 
 export {
     copyToWasm,

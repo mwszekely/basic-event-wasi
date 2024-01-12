@@ -1,7 +1,7 @@
 import type { __throw_exception_with_stack_trace, emscripten_notify_memory_growth, environ_get, environ_sizes_get, fd_close, fd_read, fd_seek, fd_write, proc_exit } from "./index.js";
 /** @alias fd */
 export type FileDescriptor = number;
-export type Pointer<T> = number;
+export type Pointer<_T> = number;
 export interface KnownInstanceExports {
     free(ptr: number): void;
     malloc(size: number): number;
@@ -13,7 +13,7 @@ export interface KnownInstanceExports {
  *
  * Use this to implement those functions.
  */
-export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, L extends keyof EntirePublicEnvInterface = never> {
+export interface PrivateImpl {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
     cachedMemoryView: DataView | null;
@@ -21,7 +21,6 @@ export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, 
      * A return of `false` means the event was cancelled; i.e. `preventDefault` was called.
      */
     dispatchEvent(e: Event): boolean;
-    wasiSubset: EntirePublicInterface<K, L>;
 }
 export interface EntirePublicWasiInterface {
     proc_exit: typeof proc_exit;

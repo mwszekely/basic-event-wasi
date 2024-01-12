@@ -20,8 +20,6 @@ export class FileDescriptorSeekEvent extends CustomEvent<FileDescriptorSeekEvent
 
 /** POSIX lseek */
 export function fd_seek(this: PrivateImpl, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>) {
-    debugger;
-
     switch (fd) {
         case 0:
             break;
@@ -33,7 +31,6 @@ export function fd_seek(this: PrivateImpl, fd: FileDescriptor, offset: number, w
             if (this.dispatchEvent(new FileDescriptorSeekEvent(fd)))
                 return errorno.badf;
     }
-
 
     return 0;
 }

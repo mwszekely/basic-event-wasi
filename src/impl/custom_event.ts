@@ -1,6 +1,6 @@
 import "./event.js";
 
-// Did you know that CustomEvent isn't defined in Worklets? Fun!!
+// Worklets don't define `CustomEvent`, even when they do define `Event` itself...
 globalThis.CustomEvent ??= class CustomEvent<T = any> extends Event {
 
     constructor(type: string, eventInitDict?: CustomEventInit<T>) {
@@ -8,19 +8,10 @@ globalThis.CustomEvent ??= class CustomEvent<T = any> extends Event {
         this.detail = eventInitDict?.detail!;
     }
 
-    /**
-     * Returns any custom data event was created with. Typically used for synthetic events.
-     *
-     * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CustomEvent/detail)
-     */
     detail: T;
 
-    /**
-     * @deprecated
-     *
-     * [MDN Reference](https://developer.mozilla.org/docs/Web/API/CustomEvent/initCustomEvent)
-     */
-    initCustomEvent(type: string, bubbles?: boolean, cancelable?: boolean, detail?: T): void { 
+    initCustomEvent(_type: string, _bubbles?: boolean, _cancelable?: boolean, detail?: T): void { 
+        // this.type, this.bubbles, and this.cancelable are all readonly...
         this.detail = (detail ?? this.detail)!;
     }
 }

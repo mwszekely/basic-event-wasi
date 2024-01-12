@@ -7,7 +7,6 @@ export class FileDescriptorCloseEvent extends CustomEvent {
 /** POSIX close */
 export function fd_close(fd) {
     const event = new FileDescriptorCloseEvent(fd);
-    debugger;
     if (this.dispatchEvent(event)) {
     }
 }

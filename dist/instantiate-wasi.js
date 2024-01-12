@@ -1,5 +1,10 @@
 const wasi = Symbol("wasi-impl");
 /**
+ * Instantiate the WASI interface, binding all its functions to the WASM instance itself.
+ *
+ * Must be used in conjunction with, e.g., `WebAssembly.instantiate`. Because that and this both require each other circularly,
+ * `instantiateStreamingWithWasi` and `instantiateWithWasi` are convenience functions that do both at once.
+ *
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  *
  * This function provides that context to an import before it's passed to an `Instance` for construction.
@@ -21,10 +26,10 @@ const wasi = Symbol("wasi-impl");
  * ([Please please please please please](https://github.com/tc39/proposal-promise-with-resolvers))
  *
  * @param wasmInstance
- * @param base
+ * @param unboundImports
  * @returns
  */
-export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
+export function instantiateWasi(wasmInstance, unboundImports, { dispatchEvent } = {}) {
     if (!dispatchEvent && !("dispatchEvent" in globalThis)) {
         console.warn(`globalThis.dispatchEvent does not exist here -- events from WebAssembly will go unhandled.`);
     }
@@ -41,7 +46,7 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
     const p = {
         instance: null,
         module: null,
-        wasiSubset: base,
+        //wasiSubset: unboundImports,
         cachedMemoryView: null,
         dispatchEvent(e) { return dispatchEvent(e); }
     };
@@ -62,10 +67,11 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
     });
     // All the functions we've been passed were imported and haven't been bound yet.
     // Return a new object with each member bound to the private information we pass around.
-    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base.wasi_snapshot_preview1).map(([key, func]) => { return [key, func.bind(p)]; }));
-    const env = Object.fromEntries(Object.entries(base.env).map(([key, func]) => { return [key, func.bind(p)]; }));
+    const wasi_snapshot_preview1 = bindAllFuncs(p, unboundImports.wasi_snapshot_preview1);
+    const env = bindAllFuncs(p, unboundImports.env);
+    const boundImports = { wasi_snapshot_preview1, env };
     return {
-        imports: { wasi_snapshot_preview1, env },
+        imports: boundImports,
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
         wasiReady: new Promise((res) => { resolve = res; })
@@ -73,4 +79,8 @@ export function instantiateWasi(wasmInstance, base, { dispatchEvent } = {}) {
 }
 export function getImpl(instance) {
     return instance[wasi];
+}
+// Given an object, binds each function in that object to p (shallowly).
+function bindAllFuncs(p, r) {
+    return Object.fromEntries(Object.entries(r).map(([key, func]) => { return [key, (typeof func == "function" ? func.bind(p) : func)]; }));
 }

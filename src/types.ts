@@ -13,7 +13,7 @@ import type {
 /** @alias fd */
 export type FileDescriptor = number;
 
-export type Pointer<T> = number;
+export type Pointer<_T> = number;
 
 export interface KnownInstanceExports {
     free(ptr: number): void;
@@ -22,51 +22,20 @@ export interface KnownInstanceExports {
     memory: WebAssembly.Memory;
 }
 
-
 /**
  * Any WASI function will have `this` set to a `PrivateImpl` representing its global state.
  * 
  * Use this to implement those functions.
  */
-export interface PrivateImpl<K extends keyof EntirePublicWasiInterface = never, L extends keyof EntirePublicEnvInterface = never> {
+export interface PrivateImpl {
     instance: WebAssembly.Instance;
     module: WebAssembly.Module;
     cachedMemoryView: DataView | null;
-    //getMemory(): DataView;
-    //getPointerSize(): 4;
 
     /**
      * A return of `false` means the event was cancelled; i.e. `preventDefault` was called.
      */
     dispatchEvent(e: Event): boolean;
-
-    
-    /*readPointer<T>(ptr: Pointer<Pointer<T>>): Pointer<T>;
-
-    readUint64(ptr: Pointer<bigint>): bigint;
-    writeUint64(ptr: Pointer<bigint>, value: bigint): void;
-    readInt64(ptr: Pointer<bigint>): bigint;
-    writeInt64(ptr: Pointer<bigint>, value: bigint): void;
-
-    
-    readUint32(ptr: Pointer<number>): number;
-    writeUint32(ptr: Pointer<number>, value: number): void;
-    readInt32(ptr: Pointer<number>): number;
-    writeInt32(ptr: Pointer<number>,value: number): void;
-
-    
-    readUint16(ptr: Pointer<number>): number;
-    writeUint16(ptr: Pointer<number>, value: number): void;
-    readInt16(ptr: Pointer<number>): number;
-    writeInt16(ptr: Pointer<number>, value: number): void;
-
-    
-    readUint8(ptr: Pointer<number>): number;
-    writeUint8(ptr: Pointer<number>, value: number): void;
-    readInt8(ptr: Pointer<number>): number;
-    writeInt8(ptr: Pointer<number>, value: number): void;*/
-    
-    wasiSubset: EntirePublicInterface<K, L>;
 }
 
 export interface EntirePublicWasiInterface {

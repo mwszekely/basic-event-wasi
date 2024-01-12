@@ -3,6 +3,11 @@ import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiI
 const wasi = Symbol("wasi-impl");
 
 /**
+ * Instantiate the WASI interface, binding all its functions to the WASM instance itself.
+ * 
+ * Must be used in conjunction with, e.g., `WebAssembly.instantiate`. Because that and this both require each other circularly, 
+ * `instantiateStreamingWithWasi` and `instantiateWithWasi` are convenience functions that do both at once.
+ * 
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  * 
  * This function provides that context to an import before it's passed to an `Instance` for construction.
@@ -24,10 +29,10 @@ const wasi = Symbol("wasi-impl");
  * ([Please please please please please](https://github.com/tc39/proposal-promise-with-resolvers))
  * 
  * @param wasmInstance 
- * @param base 
+ * @param unboundImports 
  * @returns 
  */
-export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }: { dispatchEvent?(event: Event): boolean } = {}) {
+export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, unboundImports: EntirePublicInterface<K, L>, { dispatchEvent }: { dispatchEvent?(event: Event): boolean } = {}): WasiReturn<K, L> {
     if (!dispatchEvent && !("dispatchEvent" in globalThis)) {
         console.warn(`globalThis.dispatchEvent does not exist here -- events from WebAssembly will go unhandled.`);
     }
@@ -43,10 +48,10 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
     };
 
     let resolve!: (value: WebAssembly.WebAssemblyInstantiatedSource) => void;
-    const p: PrivateImpl<K> = {
+    const p: PrivateImpl = {
         instance: null!,
         module: null!,
-        wasiSubset: base,
+        //wasiSubset: unboundImports,
         cachedMemoryView: null,
         dispatchEvent(e) { return dispatchEvent!(e); }
     }
@@ -68,18 +73,33 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
 
     // All the functions we've been passed were imported and haven't been bound yet.
     // Return a new object with each member bound to the private information we pass around.
-    const wasi_snapshot_preview1 = Object.fromEntries(Object.entries(base.wasi_snapshot_preview1).map(([key, func]) => { return [key, (func as Function).bind(p)] as const; })) as Pick<EntirePublicWasiInterface, K>;
-    const env = Object.fromEntries(Object.entries(base.env).map(([key, func]) => { return [key, (func as Function).bind(p)] as const; })) as Pick<EntirePublicEnvInterface, L>;
 
+    const wasi_snapshot_preview1 = bindAllFuncs(p, unboundImports.wasi_snapshot_preview1) as Pick<EntirePublicWasiInterface, K>;
+    const env = bindAllFuncs(p, unboundImports.env) as Pick<EntirePublicEnvInterface, L>;
+
+    const boundImports: WasiReturnImports<K, L> = { wasi_snapshot_preview1, env };
     return {
-        imports: { wasi_snapshot_preview1, env },
+        imports: boundImports,
         // Until this resolves, no WASI functions can be called (and by extension no w'asm exports can be called)
         // It resolves immediately after the input promise to the instance&module resolves
         wasiReady: new Promise<WebAssembly.WebAssemblyInstantiatedSource>((res) => { resolve! = res })
     };
 }
 
+export interface WasiReturnImports<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
+    wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
+    env: Pick<EntirePublicEnvInterface, L>;
+}
+export interface WasiReturn<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
+    imports: WasiReturnImports<K, L>;
+    wasiReady: Promise<WebAssembly.WebAssemblyInstantiatedSource>;
+}
+
 export function getImpl(instance: WebAssembly.Instance) {
     return (instance as any)[wasi] as PrivateImpl;
 }
 
+// Given an object, binds each function in that object to p (shallowly).
+function bindAllFuncs<R extends {}>(p: PrivateImpl, r: R) {
+    return Object.fromEntries(Object.entries(r).map(([key, func]) => { return [key, (typeof func == "function" ? func.bind(p) : func)] as const; })) as {};
+}

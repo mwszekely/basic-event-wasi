@@ -36,7 +36,6 @@ export class UnhandledFileReadEvent extends Error {
 }
 /** POSIX readv */
 export function fd_read(fd, iov, iovcnt, pnum) {
-    debugger;
     let nWritten = 0;
     const gen = parseArray(this, iov, iovcnt);
     // Get all the data to read in its separate buffers

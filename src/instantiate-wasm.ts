@@ -1,33 +1,44 @@
 import { instantiateWasi } from "./instantiate-wasi.js";
 import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
 
+async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(instantiateWasm: (boundImports: WebAssembly.Imports) => Promise<WebAssembly.WebAssemblyInstantiatedSource>, unboundImports: EntirePublicInterface<K, L>) {
+    
+    // There's a bit of song and dance to get around the fact that:
+    // 1. WASM needs its WASI imports immediately upon instantiation.
+    // 2. WASI needs its WASM Instance immediately upon instantiation.
+    // So we use promises to notify each that the other's been created.
+
+    const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers<WebAssembly.WebAssemblyInstantiatedSource>();
+    const { imports, wasiReady } = instantiateWasi<K, L>(wasmReady, unboundImports);
+    resolveWasm(await instantiateWasm({ ...imports }));
+    return await wasiReady;
+}
 
 /**
  * Like `WebAssembly.instantiateStreaming`, but also instantiates WASI with the `imports` you pass in.
  * 
- * This is a very basic wrapper around `instantiateWasi` and `WebAssembly.compileStreaming` that you can easily re-implement if you need to fine-tune the behavior in some way.
- * 
- * @param wasm 
- * @param imports2 
- * @returns 
+ * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
  */
-export async function instantiateStreamingWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasm: Response | Promise<Response>, imports2: EntirePublicInterface<K, L>) {
-    const { promise: wasmReady, resolve: resolveWasm } = promiseWithResolvers<WebAssembly.WebAssemblyInstantiatedSource>();
-
-    // The wasiReady promise resolves immediately after the wasmReady promise resolves,
-    // but it runs some initialization code so it's import to wait for it too.
-    const { imports, wasiReady } = instantiateWasi<K, L>(wasmReady.then(s => { s.instance; return s; }), imports2);
-    resolveWasm(await WebAssembly.instantiateStreaming(wasm, { ...imports }));
-    return await wasiReady;
+export async function instantiateStreamingWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(response: Response | Promise<Response>, unboundImports: EntirePublicInterface<K, L>) {
+    return await instantiateGeneric(async (combinedImports) => await WebAssembly.instantiateStreaming(response, { ...combinedImports }), unboundImports);
 }
 
-function promiseWithResolvers<T>() {
-    let resolve!: (value: T | PromiseLike<T>) => void;
-    let reject!: (reason?: any) => void;
-    let promise = new Promise<T>((res, rej) => { resolve = res; reject = rej; });
-    return {
-        promise,
-        resolve,
-        reject
-    }
+/**
+ * Like `WebAssembly.instantiate`, but also instantiates WASI with the `imports` you pass in.
+ * 
+ * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
+ */
+export async function instantiateWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(module: WebAssembly.Module | BufferSource, unboundImports: EntirePublicInterface<K, L>) {
+    return await instantiateGeneric(async (combinedImports) => ({ module, instance: await WebAssembly.instantiate(module, { ...combinedImports }) }), unboundImports);
 }
+
+/**
+ * Like `instantiateWithWasi`, but takes the function returned by @rollup/plugin-wasm when a .wasm file is `import`ed by Javascript.
+ * 
+ * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
+ */
+export async function instantiateFromRollupWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmFetchPromise: RollupWasmPromise, unboundImports: EntirePublicInterface<K, L>) {
+    return await instantiateGeneric(async (combinedImports) => await wasmFetchPromise(combinedImports), unboundImports);
+}
+
+export type RollupWasmPromise = (imports?: WebAssembly.Imports) => Promise<WebAssembly.WebAssemblyInstantiatedSource>;

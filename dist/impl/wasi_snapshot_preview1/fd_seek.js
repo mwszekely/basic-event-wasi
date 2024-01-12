@@ -7,7 +7,6 @@ export class FileDescriptorSeekEvent extends CustomEvent {
 }
 /** POSIX lseek */
 export function fd_seek(fd, offset, whence, offsetOut) {
-    debugger;
     switch (fd) {
         case 0:
             break;

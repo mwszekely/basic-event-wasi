@@ -1,5 +1,10 @@
 import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface, PrivateImpl } from "./types.js";
 /**
+ * Instantiate the WASI interface, binding all its functions to the WASM instance itself.
+ *
+ * Must be used in conjunction with, e.g., `WebAssembly.instantiate`. Because that and this both require each other circularly,
+ * `instantiateStreamingWithWasi` and `instantiateWithWasi` are convenience functions that do both at once.
+ *
  * The WASI interface functions can't be used alone -- they need context like (what memory is this a pointer in) and such.
  *
  * This function provides that context to an import before it's passed to an `Instance` for construction.
@@ -21,16 +26,18 @@ import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiI
  * ([Please please please please please](https://github.com/tc39/proposal-promise-with-resolvers))
  *
  * @param wasmInstance
- * @param base
+ * @param unboundImports
  * @returns
  */
-export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, base: EntirePublicInterface<K, L>, { dispatchEvent }?: {
+export declare function instantiateWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(wasmInstance: Promise<WebAssembly.WebAssemblyInstantiatedSource>, unboundImports: EntirePublicInterface<K, L>, { dispatchEvent }?: {
     dispatchEvent?(event: Event): boolean;
-}): {
-    imports: {
-        wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
-        env: Pick<EntirePublicEnvInterface, L>;
-    };
+}): WasiReturn<K, L>;
+export interface WasiReturnImports<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
+    wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
+    env: Pick<EntirePublicEnvInterface, L>;
+}
+export interface WasiReturn<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
+    imports: WasiReturnImports<K, L>;
     wasiReady: Promise<WebAssembly.WebAssemblyInstantiatedSource>;
-};
-export declare function getImpl(instance: WebAssembly.Instance): PrivateImpl<never, never>;
+}
+export declare function getImpl(instance: WebAssembly.Instance): PrivateImpl;
