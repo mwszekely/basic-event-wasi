@@ -16,8 +16,7 @@ export class InvalidArrayLengthError extends Error {
  */
 abstract class NativeTypedArray<T extends AllTypedArrays> {
 
-    // This is only null if this array has never been resized (meaning it's never been used),
-    // so just typed it as non-nullable
+    // This is assigned in a function that's definitely called from the constructor
     protected _impl!: T;
 
     private _currentCount: number;
@@ -96,6 +95,9 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
         }
         else
             this._ptr = null;
+
+            
+        this._updateTypedArrayImpl(this._ptr || 0, initialCount || 0);
     }
 
     [Symbol.dispose]() {

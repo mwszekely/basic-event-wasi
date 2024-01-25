@@ -13,8 +13,7 @@ class NativeTypedArray {
     TypedArray;
     _instance;
     _bytesPerWord;
-    // This is only null if this array has never been resized (meaning it's never been used),
-    // so just typed it as non-nullable
+    // This is assigned in a function that's definitely called from the constructor
     _impl;
     _currentCount;
     _ptr = null;
@@ -85,6 +84,7 @@ class NativeTypedArray {
         }
         else
             this._ptr = null;
+        this._updateTypedArrayImpl(this._ptr || 0, initialCount || 0);
     }
     [Symbol.dispose]() {
         if (this._ptr) {
