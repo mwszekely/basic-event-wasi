@@ -36,8 +36,15 @@ export {
 } from "./util.js"
 
 export {
-    NativeInt16Array, NativeInt32Array, NativeInt8Array,
-    NativeUint16Array, NativeUint32Array, NativeUint8Array,
+    InvalidArrayLengthError,
+    NativeBigInt64Array,
+    NativeBigUint64Array,
+    NativeInt16Array,
+    NativeInt32Array,
+    NativeInt8Array,
+    NativeUint16Array,
+    NativeUint32Array,
+    NativeUint8Array,
     NativeUint8ClampedArray
 } from "./native-array.js"
 
