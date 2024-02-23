@@ -57,6 +57,7 @@ export function instantiateWasi(wasmInstance, unboundImports, { dispatchEvent } 
         instance[wasi] = p;
         p.cachedMemoryView = new DataView(instance.exports.memory.buffer);
         console.assert(("_initialize" in p.instance.exports) != "_start" in p.instance.exports);
+        debugger;
         if ("_initialize" in p.instance.exports) {
             p.instance.exports._initialize();
         }

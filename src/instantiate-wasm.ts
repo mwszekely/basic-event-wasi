@@ -10,10 +10,7 @@ async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L e
 
     const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers<WebAssembly.WebAssemblyInstantiatedSource>();
     const { imports, wasiReady } = instantiateWasi<K, L>(wasmReady, unboundImports);
-    debugger;
-    const wasm = await instantiateWasm({ ...imports });
-    debugger;
-    resolveWasm(wasm);
+    resolveWasm(await instantiateWasm({ ...imports }));
     return await wasiReady;
 }
 

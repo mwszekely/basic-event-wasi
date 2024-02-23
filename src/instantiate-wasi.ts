@@ -62,6 +62,7 @@ export function instantiateWasi<K extends keyof EntirePublicWasiInterface, L ext
         (instance as any)[wasi] = p;
         p.cachedMemoryView = new DataView((instance.exports.memory as WebAssembly.Memory).buffer);
         console.assert(("_initialize" in p.instance.exports) != "_start" in p.instance.exports);
+        debugger;
         if ("_initialize" in p.instance.exports) {
             (p.instance.exports as any)._initialize();
         }

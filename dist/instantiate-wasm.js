@@ -6,10 +6,7 @@ async function instantiateGeneric(instantiateWasm, unboundImports) {
     // So we use promises to notify each that the other's been created.
     const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers();
     const { imports, wasiReady } = instantiateWasi(wasmReady, unboundImports);
-    debugger;
-    const wasm = await instantiateWasm({ ...imports });
-    debugger;
-    resolveWasm(wasm);
+    resolveWasm(await instantiateWasm({ ...imports }));
     return await wasiReady;
 }
 /**
