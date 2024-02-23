@@ -20,3 +20,5 @@ export declare function writeInt8(instance: WebAssembly.Instance, ptr: Pointer<n
 export declare function readPointer(instance: WebAssembly.Instance, ptr: Pointer<number>): number;
 export declare function getPointerSize(_instance: WebAssembly.Instance): number;
 export declare function getInstanceExports(instance: WebAssembly.Instance): KnownInstanceExports;
+export declare function readLatin1String(instance: WebAssembly.Instance, ptr: number): string;
+export declare function readUtf8String(instance: WebAssembly.Instance, ptr: number): string;

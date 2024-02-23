@@ -1,13 +1,7 @@
 
-export { emscripten_notify_memory_growth } from "./impl/env/emscripten_notify_memory_growth.js"
-export { __throw_exception_with_stack_trace } from "./impl/env/throw_exception_with_stack_trace.js"
-export { environ_get } from "./impl/wasi_snapshot_preview1/environ_get.js"
-export { environ_sizes_get } from "./impl/wasi_snapshot_preview1/environ_sizes_get.js"
-export { fd_close } from "./impl/wasi_snapshot_preview1/fd_close.js"
-export { fd_read } from "./impl/wasi_snapshot_preview1/fd_read.js"
-export { fd_seek } from "./impl/wasi_snapshot_preview1/fd_seek.js"
-export { fd_write } from "./impl/wasi_snapshot_preview1/fd_write.js"
-export { proc_exit } from "./impl/wasi_snapshot_preview1/proc_exit.js"
+export * from "./impl/env/index.js"
+export * from "./impl/wasi_snapshot_preview1/index.js"
+
 export { instantiateWasi } from "./instantiate-wasi.js"
 export { RollupWasmPromise, instantiateFromRollupWithWasi, instantiateStreamingWithWasi, instantiateWithWasi } from "./instantiate-wasm.js"
 

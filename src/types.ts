@@ -1,14 +1,5 @@
-import type {
-    __throw_exception_with_stack_trace,
-    emscripten_notify_memory_growth,
-    environ_get,
-    environ_sizes_get,
-    fd_close,
-    fd_read,
-    fd_seek,
-    fd_write,
-    proc_exit
-} from "./index.js";
+import type * as Env from "./impl/env/index.js";
+import type * as SnapshotPreview1 from "./impl/wasi_snapshot_preview1/index.js";
 
 /** @alias fd */
 export type FileDescriptor = number;
@@ -18,7 +9,7 @@ export type Pointer<_T> = number;
 export interface KnownInstanceExports {
     free(ptr: number): void;
     malloc(size: number): number;
-    realloc(ptr: number, size: number) : number;
+    realloc(ptr: number, size: number): number;
     memory: WebAssembly.Memory;
 }
 
@@ -38,28 +29,45 @@ export interface PrivateImpl {
     dispatchEvent(e: Event): boolean;
 }
 
-export interface EntirePublicWasiInterface {
-    proc_exit: typeof proc_exit;
-    fd_write: typeof fd_write;
-    fd_close: typeof fd_close;
-    fd_read: typeof fd_read;
-    fd_seek: typeof fd_seek;
+type EntirePublicWasiInterfaceHelper = { [K in keyof typeof SnapshotPreview1]: (typeof SnapshotPreview1)[K]; }
+type EntirePublicEnvInterfaceHelper = { [K in keyof typeof Env]: (typeof Env)[K]; }
 
-    environ_get: typeof environ_get;
-    environ_sizes_get: typeof environ_sizes_get;
-}
-
-export interface EntirePublicEnvInterface {
-    __throw_exception_with_stack_trace: typeof __throw_exception_with_stack_trace;
-    emscripten_notify_memory_growth: typeof emscripten_notify_memory_growth;
-}
+export interface EntirePublicWasiInterface extends EntirePublicWasiInterfaceHelper {}
+export interface EntirePublicEnvInterface extends EntirePublicEnvInterfaceHelper {}
 
 export interface EntirePublicInterface<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
     wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
     env: Pick<EntirePublicEnvInterface, L>;
 }
 
+// TODO: Better way to type-guarantee we get all the strings of each function name.
+// Also TODO: Why is this needed again? Who uses this?
+const u = undefined;
+const w: Record<keyof EntirePublicWasiInterface, undefined> = {
+    environ_get: u,
+    environ_sizes_get: u,
+    fd_close: u,
+    fd_read: u,
+    fd_seek: u,
+    fd_write: u,
+    proc_exit: u
+}
+const e: Record<keyof EntirePublicEnvInterface, undefined> = {
+    __throw_exception_with_stack_trace: u,
+    emscripten_notify_memory_growth: u,
+    _embind_register_bigint: u,
+    _embind_register_bool: u,
+    _embind_register_emval: u,
+    _embind_register_float: u,
+    _embind_register_function: u,
+    _embind_register_integer: u,
+    _embind_register_memory_view: u,
+    _embind_register_std_string: u,
+    _embind_register_std_wstring: u,
+    _embind_register_void: u,
+}
+
 export const KnownExports = {
-    "wasi_snapshot_preview1": ["environ_get", "environ_sizes_get", "fd_close", "fd_read", "fd_seek", "fd_write", "proc_exit"],
-    "env": ["emscripten_notify_memory_growth", "__throw_exception_with_stack_trace"]
+    "wasi_snapshot_preview1": Object.keys(w) as Array<keyof EntirePublicEnvInterface>,
+    "env": Object.keys(e) as Array<keyof EntirePublicEnvInterface>,
 } as const;

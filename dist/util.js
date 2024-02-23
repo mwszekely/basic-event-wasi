@@ -26,3 +26,21 @@ export function getPointerSize(_instance) { return 4; }
 export function getInstanceExports(instance) {
     return instance.exports;
 }
+let d = new TextDecoder("utf-8");
+export function readLatin1String(instance, ptr) {
+    let ret = "";
+    let c = ptr;
+    let next = 0;
+    while (next = readUint8(instance, c)) {
+        ret += String.fromCharCode(next);
+    }
+    return ret;
+}
+export function readUtf8String(instance, ptr) {
+    let ptrStart = ptr;
+    let ptrEnd = ptr;
+    while (readUint8(instance, ptrEnd)) {
+        ++ptrEnd;
+    }
+    return d.decode(new Uint8Array(getMemory(instance).buffer, ptrStart, ptrEnd - ptrStart));
+}

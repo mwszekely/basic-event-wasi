@@ -5,6 +5,8 @@ This is an *extremely* limited implementation of [WASI preview1](https://github.
 
 Most functions are dispatched as an `Event` on `globalThis`, and have default behavior if unhandled. For example, `fd_write` (called by `printf` and such) will default to `console.log` (if `stdout` was specified to be written to).  If you'd like to prevent this behavior to do something different, call `preventDefault` on the event.
 
+This library is unlicenced into the public domain. If there's anything useful to you here somehow you can just take it.
+
 ## Implemented interfaces
 
 ### Events

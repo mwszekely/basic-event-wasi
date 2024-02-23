@@ -34,3 +34,27 @@ export function getPointerSize(_instance: WebAssembly.Instance) { return 4; }
 export function getInstanceExports(instance: WebAssembly.Instance) {
     return instance.exports as unknown as KnownInstanceExports;
 }
+
+
+let d = new TextDecoder("utf-8");
+export function readLatin1String(instance: WebAssembly.Instance, ptr: number) {
+    let ret = "";
+    let c = ptr;
+    let next = 0;
+
+    while (next = readUint8(instance, c)) {
+        ret += String.fromCharCode(next);
+    }
+    return ret;
+}
+
+export function readUtf8String(instance: WebAssembly.Instance, ptr: number) {
+    let ptrStart = ptr;
+    let ptrEnd = ptr;
+
+    while (readUint8(instance, ptrEnd)) {
+        ++ptrEnd
+    }
+
+    return d.decode(new Uint8Array(getMemory(instance).buffer, ptrStart, ptrEnd - ptrStart));
+}

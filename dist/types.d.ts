@@ -1,4 +1,5 @@
-import type { __throw_exception_with_stack_trace, emscripten_notify_memory_growth, environ_get, environ_sizes_get, fd_close, fd_read, fd_seek, fd_write, proc_exit } from "./index.js";
+import type * as Env from "./impl/env/index.js";
+import type * as SnapshotPreview1 from "./impl/wasi_snapshot_preview1/index.js";
 /** @alias fd */
 export type FileDescriptor = number;
 export type Pointer<_T> = number;
@@ -22,24 +23,22 @@ export interface PrivateImpl {
      */
     dispatchEvent(e: Event): boolean;
 }
-export interface EntirePublicWasiInterface {
-    proc_exit: typeof proc_exit;
-    fd_write: typeof fd_write;
-    fd_close: typeof fd_close;
-    fd_read: typeof fd_read;
-    fd_seek: typeof fd_seek;
-    environ_get: typeof environ_get;
-    environ_sizes_get: typeof environ_sizes_get;
+type EntirePublicWasiInterfaceHelper = {
+    [K in keyof typeof SnapshotPreview1]: (typeof SnapshotPreview1)[K];
+};
+type EntirePublicEnvInterfaceHelper = {
+    [K in keyof typeof Env]: (typeof Env)[K];
+};
+export interface EntirePublicWasiInterface extends EntirePublicWasiInterfaceHelper {
 }
-export interface EntirePublicEnvInterface {
-    __throw_exception_with_stack_trace: typeof __throw_exception_with_stack_trace;
-    emscripten_notify_memory_growth: typeof emscripten_notify_memory_growth;
+export interface EntirePublicEnvInterface extends EntirePublicEnvInterfaceHelper {
 }
 export interface EntirePublicInterface<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface> {
     wasi_snapshot_preview1: Pick<EntirePublicWasiInterface, K>;
     env: Pick<EntirePublicEnvInterface, L>;
 }
 export declare const KnownExports: {
-    readonly wasi_snapshot_preview1: readonly ["environ_get", "environ_sizes_get", "fd_close", "fd_read", "fd_seek", "fd_write", "proc_exit"];
-    readonly env: readonly ["emscripten_notify_memory_growth", "__throw_exception_with_stack_trace"];
+    readonly wasi_snapshot_preview1: (keyof EntirePublicEnvInterface)[];
+    readonly env: (keyof EntirePublicEnvInterface)[];
 };
+export {};
