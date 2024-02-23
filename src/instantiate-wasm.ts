@@ -10,7 +10,10 @@ async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L e
 
     const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers<WebAssembly.WebAssemblyInstantiatedSource>();
     const { imports, wasiReady } = instantiateWasi<K, L>(wasmReady, unboundImports);
-    resolveWasm(await instantiateWasm({ ...imports }));
+    debugger;
+    const wasm = await instantiateWasm({ ...imports });
+    debugger;
+    resolveWasm(wasm);
     return await wasiReady;
 }
 
@@ -20,12 +23,7 @@ async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L e
  * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
  */
 export async function instantiateStreamingWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(response: Response | Promise<Response>, unboundImports: EntirePublicInterface<K, L>) {
-    return await instantiateGeneric(async (combinedImports) => {
-        debugger;
-        let ret = WebAssembly.instantiateStreaming(response, { ...combinedImports });
-        let ret2 = await ret;
-        return ret2;
-    }, unboundImports);
+    return await instantiateGeneric(async (combinedImports) => await  WebAssembly.instantiateStreaming(response, { ...combinedImports }), unboundImports);
 }
 
 /**

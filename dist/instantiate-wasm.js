@@ -6,7 +6,10 @@ async function instantiateGeneric(instantiateWasm, unboundImports) {
     // So we use promises to notify each that the other's been created.
     const { promise: wasmReady, resolve: resolveWasm } = Promise.withResolvers();
     const { imports, wasiReady } = instantiateWasi(wasmReady, unboundImports);
-    resolveWasm(await instantiateWasm({ ...imports }));
+    debugger;
+    const wasm = await instantiateWasm({ ...imports });
+    debugger;
+    resolveWasm(wasm);
     return await wasiReady;
 }
 /**
@@ -15,12 +18,7 @@ async function instantiateGeneric(instantiateWasm, unboundImports) {
  * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
  */
 export async function instantiateStreamingWithWasi(response, unboundImports) {
-    return await instantiateGeneric(async (combinedImports) => {
-        debugger;
-        let ret = WebAssembly.instantiateStreaming(response, { ...combinedImports });
-        let ret2 = await ret;
-        return ret2;
-    }, unboundImports);
+    return await instantiateGeneric(async (combinedImports) => await WebAssembly.instantiateStreaming(response, { ...combinedImports }), unboundImports);
 }
 /**
  * Like `WebAssembly.instantiate`, but also instantiates WASI with the `imports` you pass in.
