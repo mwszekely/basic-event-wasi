@@ -2,7 +2,7 @@ import { instantiateWasi } from "./instantiate-wasi.js";
 import type { EntirePublicEnvInterface, EntirePublicInterface, EntirePublicWasiInterface } from "./types.js";
 
 async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(instantiateWasm: (boundImports: WebAssembly.Imports) => Promise<WebAssembly.WebAssemblyInstantiatedSource>, unboundImports: EntirePublicInterface<K, L>) {
-    
+
     // There's a bit of song and dance to get around the fact that:
     // 1. WASM needs its WASI imports immediately upon instantiation.
     // 2. WASI needs its WASM Instance immediately upon instantiation.
@@ -20,7 +20,12 @@ async function instantiateGeneric<K extends keyof EntirePublicWasiInterface, L e
  * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
  */
 export async function instantiateStreamingWithWasi<K extends keyof EntirePublicWasiInterface, L extends keyof EntirePublicEnvInterface>(response: Response | Promise<Response>, unboundImports: EntirePublicInterface<K, L>) {
-    return await instantiateGeneric(async (combinedImports) => await WebAssembly.instantiateStreaming(response, { ...combinedImports }), unboundImports);
+    return await instantiateGeneric(async (combinedImports) => {
+        debugger;
+        let ret = WebAssembly.instantiateStreaming(response, { ...combinedImports });
+        let ret2 = await ret;
+        return ret2;
+    }, unboundImports);
 }
 
 /**

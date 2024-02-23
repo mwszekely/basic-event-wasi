@@ -15,7 +15,12 @@ async function instantiateGeneric(instantiateWasm, unboundImports) {
  * This exists just to remove simple boilerplate. You can easily re-implement if you need to fine-tune the behavior in some way.
  */
 export async function instantiateStreamingWithWasi(response, unboundImports) {
-    return await instantiateGeneric(async (combinedImports) => await WebAssembly.instantiateStreaming(response, { ...combinedImports }), unboundImports);
+    return await instantiateGeneric(async (combinedImports) => {
+        debugger;
+        let ret = WebAssembly.instantiateStreaming(response, { ...combinedImports });
+        let ret2 = await ret;
+        return ret2;
+    }, unboundImports);
 }
 /**
  * Like `WebAssembly.instantiate`, but also instantiates WASI with the `imports` you pass in.
