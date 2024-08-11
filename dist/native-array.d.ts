@@ -1,3 +1,4 @@
+import { InstantiatedWasi } from "./instantiated-wasi.js";
 type AllTypedArrays = Uint8Array | Int8Array | Uint8ClampedArray | Uint16Array | Int16Array | Uint32Array | Int32Array | BigInt64Array | BigUint64Array;
 export declare class InvalidArrayLengthError extends Error {
     constructor(sourceByteCount: number, targetItemSize: number);
@@ -9,7 +10,7 @@ export declare class InvalidArrayLengthError extends Error {
  */
 declare abstract class NativeTypedArray<T extends AllTypedArrays> {
     private TypedArray;
-    protected _instance: WebAssembly.Instance;
+    protected _instance: InstantiatedWasi<{}>;
     protected _bytesPerWord: number;
     protected _impl: T;
     private _currentCount;
@@ -49,34 +50,35 @@ declare abstract class NativeTypedArray<T extends AllTypedArrays> {
     get address(): number | null;
     protected constructor(TypedArray: {
         new (buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
-    }, _instance: WebAssembly.Instance, _bytesPerWord: number, initialCount?: number | null);
+    }, _instance: InstantiatedWasi<{}>, _bytesPerWord: number, initialCount?: number | null);
     [Symbol.dispose](): void;
 }
 export declare class NativeInt8Array extends NativeTypedArray<Int8Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeUint8Array extends NativeTypedArray<Uint8Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeUint8ClampedArray extends NativeTypedArray<Uint8ClampedArray> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeInt16Array extends NativeTypedArray<Int16Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeUint16Array extends NativeTypedArray<Uint16Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeInt32Array extends NativeTypedArray<Int32Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeUint32Array extends NativeTypedArray<Uint32Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeBigInt64Array extends NativeTypedArray<BigInt64Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export declare class NativeBigUint64Array extends NativeTypedArray<BigUint64Array> {
-    constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined);
+    constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined);
 }
 export {};
+//# sourceMappingURL=native-array.d.ts.map

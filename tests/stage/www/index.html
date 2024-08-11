@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        /** TODO: This is a magic number, but it's tested for at least... */
+        var OOMIterations = 100000;
+
+        function toHexOrNull(n, width) {
+            return n == null ? 'null' : `0x${n.toString(16).toUpperCase().padStart(2 * width, "0")}`
+        }
+    </script>
+</head>
+
+<body>
+    <p>The tests will fill these <code>&lt;span&gt;</code> elements with content from the WASM code.</p>
+    <p>Note that <strong>interacting with the page will start the Audio Worklet</strong>, which plays faint white noise.</p>
+    <p>Also note that there's a manual <code>setTimeout</code> delay to simplify the Comlink communication (ironically)</p>
+    <div>Ready (main): <span id="ready-main">(...)</span></div>
+    <div>Ready (worker): <span id="ready-worker">(...)</span></div>
+    <div>Ready (worklet): <span id="ready-worklet">(...)</span></div>
+    <div>Ready (all): <span id="ready">(...)</span></div>
+    <div>Main: <span id="main">(...)</span></div>
+    <div>Worker: <span id="worker">(...)</span></div>
+    <div>Worklet: <span id="worklet">(...)</span></div>
+    <div>Output: <output id="output">(...)</output></div>
+
+    <script type="module" src="./js/index.js"></script>
+    </script>
+</body>
+
+</html>

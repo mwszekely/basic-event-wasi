@@ -10,7 +10,11 @@
     "lib": ["ESNext", "DOM", "ESNext.Promise"],
     "declaration": true,
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "isolatedDeclarations": true,
+    "inlineSourceMap": true,
+    "declarationMap": true,
+    "inlineSources": true
   },
   "include": ["./src/**/*"]
 }

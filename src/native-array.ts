@@ -1,5 +1,5 @@
+import { InstantiatedWasi } from "./instantiated-wasi.js";
 import { Pointer } from "./types.js";
-import { getInstanceExports } from "./util.js";
 
 type AllTypedArrays = Uint8Array | Int8Array | Uint8ClampedArray | Uint16Array | Int16Array | Uint32Array | Int32Array | BigInt64Array | BigUint64Array;
 
@@ -27,7 +27,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
 
 
     private _updateTypedArrayImpl(newAddress: number, newCount: number) {
-        this._impl = new this.TypedArray((this._instance.exports.memory as WebAssembly.Memory).buffer, newAddress, newCount) as T;
+        this._impl = new this.TypedArray(this._instance.exports.memory.buffer, newAddress, newCount) as T;
     }
 
     /**
@@ -35,7 +35,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      * @param other The source array to copy from
      * @param offset Where to start writing to in this array
      */
-    set(other: T, offset = 0) {
+    set(other: T, offset = 0): void {
         this._impl.set(other as ArrayLike<any>, offset);
     }
 
@@ -44,7 +44,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      * 
      * @param other The source array that this array will copy into WASM memory. It can be any kind of `TypedArray`.
      */
-    assign(other: AllTypedArrays) {
+    assign(other: AllTypedArrays): void {
         const ourNewCount = other.byteLength / this._impl.BYTES_PER_ELEMENT;
         if (Math.floor(ourNewCount) != ourNewCount) {
             throw new InvalidArrayLengthError(other.byteLength, this._impl.BYTES_PER_ELEMENT);
@@ -56,7 +56,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
     /**
      * Identically to `TypedArray.at`, a negative `index` will count backwards from the end of the array.
      */
-    at(index: number) { return this._impl.at(index) }
+    at(index: number): number | bigint | undefined { return this._impl.at(index) }
 
     /**
      * Resizes this array in WASM memory, allocating as necessary.
@@ -66,7 +66,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      * 
      * @param newCount The number of items in this array (not the total size in bytes)
      */
-    resize(newCount: number) {
+    resize(newCount: number): void {
         if (newCount != this._currentCount) {
             const newByteCount = newCount * this._bytesPerWord;
             if (this._ptr)
@@ -81,12 +81,13 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
     /**
      * Returns the address of this array (for use with other WASM functions that expect a pointer that points to an array)
      */
-    get address() { return this._ptr }
+    get address(): number | null { return this._ptr }
 
-    protected constructor(private TypedArray: { new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T }, protected _instance: WebAssembly.Instance, protected _bytesPerWord: number, initialCount?: number | null) {
-        this._malloc = getInstanceExports(_instance).malloc;
-        this._realloc = getInstanceExports(_instance).realloc;
-        this._free = getInstanceExports(_instance).free;
+    protected constructor(private TypedArray: { new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T }, protected _instance: InstantiatedWasi<{}>, protected _bytesPerWord: number, initialCount?: number | null) {
+        const { malloc, realloc, free } = _instance.exports;
+        this._malloc = malloc;
+        this._realloc = realloc;
+        this._free = free;
         this._currentCount = initialCount || 0;
 
         if (initialCount) {
@@ -100,22 +101,21 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
         this._updateTypedArrayImpl(this._ptr || 0, initialCount || 0);
     }
 
-    [Symbol.dispose]() {
-        if (this._ptr) {
-            this._free!(this._ptr);
-        }
+    [Symbol.dispose](): void { 
+        if (this._ptr) 
+            this._free!(this._ptr); 
     }
 }
 
-export class NativeInt8Array extends NativeTypedArray<Int8Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Int8Array, instance, 1, initialCount); } }
-export class NativeUint8Array extends NativeTypedArray<Uint8Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Uint8Array, instance, 1, initialCount); } }
-export class NativeUint8ClampedArray extends NativeTypedArray<Uint8ClampedArray> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Uint8ClampedArray, instance, 1, initialCount); } }
+export class NativeInt8Array extends NativeTypedArray<Int8Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int8Array, instance, 1, initialCount); } }
+export class NativeUint8Array extends NativeTypedArray<Uint8Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint8Array, instance, 1, initialCount); } }
+export class NativeUint8ClampedArray extends NativeTypedArray<Uint8ClampedArray> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint8ClampedArray, instance, 1, initialCount); } }
 
-export class NativeInt16Array extends NativeTypedArray<Int16Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Int16Array, instance, 2, initialCount); } }
-export class NativeUint16Array extends NativeTypedArray<Uint16Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Uint16Array, instance, 2, initialCount); } }
+export class NativeInt16Array extends NativeTypedArray<Int16Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int16Array, instance, 2, initialCount); } }
+export class NativeUint16Array extends NativeTypedArray<Uint16Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint16Array, instance, 2, initialCount); } }
 
-export class NativeInt32Array extends NativeTypedArray<Int32Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Int32Array, instance, 4, initialCount); } }
-export class NativeUint32Array extends NativeTypedArray<Uint32Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(Uint32Array, instance, 4, initialCount); } }
+export class NativeInt32Array extends NativeTypedArray<Int32Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int32Array, instance, 4, initialCount); } }
+export class NativeUint32Array extends NativeTypedArray<Uint32Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint32Array, instance, 4, initialCount); } }
 
-export class NativeBigInt64Array extends NativeTypedArray<BigInt64Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(BigInt64Array, instance, 8, initialCount); } }
-export class NativeBigUint64Array extends NativeTypedArray<BigUint64Array> { constructor(instance: WebAssembly.Instance, initialCount: number | null | undefined) { super(BigUint64Array, instance, 8, initialCount); } }
+export class NativeBigInt64Array extends NativeTypedArray<BigInt64Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(BigInt64Array, instance, 8, initialCount); } }
+export class NativeBigUint64Array extends NativeTypedArray<BigUint64Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(BigUint64Array, instance, 8, initialCount); } }

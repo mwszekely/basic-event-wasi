@@ -1,0 +1,1 @@
+{"version":3,"file":"read-int16.d.ts","sourceRoot":"","sources":["../../src/util/read-int16.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,MAAM,yBAAyB,CAAC;AAC3D,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,aAAa,CAAC;AAE3C,wBAAgB,SAAS,CAAC,QAAQ,EAAE,gBAAgB,CAAC,EAAE,CAAC,EAAE,GAAG,EAAE,OAAO,CAAC,MAAM,CAAC,GAAG,MAAM,CAA0D"}

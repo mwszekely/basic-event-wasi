@@ -1,0 +1,1 @@
+{"version":3,"file":"pointer.d.ts","sourceRoot":"","sources":["../../src/util/pointer.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,yBAAyB,CAAC;AAKhE,eAAO,MAAM,WAAW,EAAE,CAAC,GAAG,CAAkB,CAAC;AACjD,eAAO,MAAM,UAAU,EAAE,cAAc,GAAG,WAA4E,CAAC;AACvH,eAAO,MAAM,UAAU,EAAE,cAAc,GAAG,WAA4E,CAAC;AAEvH,wBAAgB,cAAc,CAAC,SAAS,EAAE,gBAAgB,CAAC,EAAE,CAAC,GAAG,CAAC,CAA6B"}

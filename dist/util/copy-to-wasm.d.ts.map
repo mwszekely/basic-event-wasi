@@ -1,0 +1,1 @@
+{"version":3,"file":"copy-to-wasm.d.ts","sourceRoot":"","sources":["../../src/util/copy-to-wasm.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,MAAM,yBAAyB,CAAC;AAC3D,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,aAAa,CAAC;AAI3C,wBAAgB,UAAU,CAAC,QAAQ,EAAE,gBAAgB,CAAC,EAAE,CAAC,EAAE,kBAAkB,EAAE,OAAO,CAAC,MAAM,CAAC,EAAE,UAAU,EAAE,UAAU,GAAG,SAAS,GAAG,IAAI,CAExI"}

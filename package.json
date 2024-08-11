@@ -1,28 +1,26 @@
 {
   "name": "basic-event-wasi",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "default": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./*.js": "./dist/*.js"
   },
   "scripts": {
     "build": "npx tsc",
-    "watch": "npx tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx playwright test",
+    "test-ui": "npx playwright test --ui",
+    "watch": "npx tsc --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@rollup/plugin-typescript": "^11.1.5",
-    "rollup": "^4.9.1",
-    "tslib": "^2.6.2"
-  },
   "devDependencies": {
-    "typescript": "5.4.0-dev.20240111"
-  }
+    "@playwright/test": "^1.46.0",
+    "typescript": "5.5.4"
+  },
+  "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }
