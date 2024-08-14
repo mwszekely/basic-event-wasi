@@ -15,6 +15,6 @@ export function _embind_register_class_constructor(this: InstantiatedWasm,
 ): void {
     const [returnTypeId, ...argTypeIds] = readArrayOfTypes(this, argCount, rawArgTypesPtr);
     _embind_register_known_name(this, "<constructor>", async () => {
-        ((EmboundClasses[rawClassTypeId] as any))._constructor = await createGlueFunction(this, "<constructor>", returnTypeId, argTypeIds, invokerSignaturePtr, invokerIndex, invokerContext);
+        EmboundClasses[rawClassTypeId]._constructor = await createGlueFunction(this, "<constructor>", returnTypeId, argTypeIds, invokerSignaturePtr, invokerIndex, invokerContext);
     });
 }

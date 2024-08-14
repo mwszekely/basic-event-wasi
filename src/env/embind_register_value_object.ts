@@ -7,68 +7,60 @@ import type { WireTypes } from "../_private/embind/types.js";
 import { readLatin1String } from "../_private/string.js";
 import { InstantiatedWasm } from "../wasm.js";
 
-interface StructRegistrationInfo extends CompositeRegistrationInfo {
-    elements: StructFieldRegistrationInfo<any, any>[];
+interface StructRegistrationInfo<WT extends WireTypes> extends CompositeRegistrationInfo<WT> {
+    elements: StructFieldRegistrationInfo<WT>[];
 }
 
-interface StructFieldRegistrationInfo<WT extends WireTypes, T> extends CompositeElementRegistrationInfo<WT, T> {
+interface StructFieldRegistrationInfo<WT extends WireTypes> extends CompositeElementRegistrationInfo<WT> {
     /** The name of this field */
     name: string;
 }
 
-interface StructFieldRegistrationInfoE<WT extends WireTypes, T> extends StructFieldRegistrationInfo<WT, T>, CompositeElementRegistrationInfoE<WT, T> { }
+interface StructFieldRegistrationInfoE<WT extends WireTypes, T> extends StructFieldRegistrationInfo<WT>, CompositeElementRegistrationInfoE<WT, T> { }
 
 /**
  * This function is called first, to start the registration of a struct and all its fields. 
  */
 export function _embind_register_value_object(this: InstantiatedWasm, rawType: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void {
-    compositeRegistrations[rawType] = {
+    compositeRegistrations.set(rawType, {
         namePtr,
         _constructor: getTableFunction<() => number>(this, constructorSignature, rawConstructor),
         _destructor: getTableFunction<() => void>(this, destructorSignature, rawDestructor),
         elements: [],
-    };
+    });
 }
 
 /**
  * This function is called once per field, after `_embind_register_value_object` and before `_embind_finalize_value_object`.
  */
-export function _embind_register_value_object_field<T>(this: InstantiatedWasm, rawTypePtr: number, fieldName: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void {
-    (compositeRegistrations[rawTypePtr] as StructRegistrationInfo).elements.push({
+export function _embind_register_value_object_field(this: InstantiatedWasm, rawTypePtr: number, fieldName: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void {
+    (compositeRegistrations.get(rawTypePtr) as StructRegistrationInfo<WireTypes>).elements.push({
         name: readLatin1String(this, fieldName),
         getterContext,
         setterContext,
         getterReturnTypeId,
         setterArgumentTypeId,
-        wasmGetter: getTableFunction<CompositeElementRegistrationGetter<T>>(this, getterSignature, getter),
-        wasmSetter: getTableFunction<CompositeElementRegistrationSetter<T>>(this, setterSignature, setter),
+        wasmGetter: getTableFunction<CompositeElementRegistrationGetter<WireTypes>>(this, getterSignature, getter),
+        wasmSetter: getTableFunction<CompositeElementRegistrationSetter<WireTypes>>(this, setterSignature, setter),
     });
 }
 
 /**
  * Called after all other object registration functions are called; this contains the actual registration code.
  */
-export function _embind_finalize_value_object<T>(this: InstantiatedWasm, rawTypePtr: number): void {
-    const reg = compositeRegistrations[rawTypePtr];
-    delete compositeRegistrations[rawTypePtr];
+export function _embind_finalize_value_object(this: InstantiatedWasm, rawTypePtr: number): void {
+    const reg = compositeRegistrations.get(rawTypePtr)!;
+    compositeRegistrations.delete(rawTypePtr);
 
     _embind_register(this, reg.namePtr, async (name) => {
 
-        const fieldRecords = await _embind_finalize_composite_elements<StructFieldRegistrationInfoE<any, T>>(reg.elements);
+        const fieldRecords = await _embind_finalize_composite_elements<StructFieldRegistrationInfoE<WireTypes, unknown>>(reg.elements);
 
         finalizeType(this, name, {
             typeId: rawTypePtr,
             fromWireType: (ptr) => {
-                let elementDestructors: Array<() => void> = []
-                const ret = {} as any;
-                /*Object.defineProperty(ret, Symbol.dispose, {
-                    value: () => {
-                        runDestructors(elementDestructors);
-                        reg._destructor(ptr);
-                    },
-                    enumerable: false,
-                    writable: false
-                });*/
+                const elementDestructors: (() => void)[] = []
+                const ret = {};
 
                 for (let i = 0; i < reg.elements.length; ++i) {
                     const field = fieldRecords[i];
@@ -95,8 +87,8 @@ export function _embind_finalize_value_object<T>(this: InstantiatedWasm, rawType
             },
             toWireType: (o) => {
                 const ptr = reg._constructor();
-                let elementDestructors: Array<() => void> = []
-                for (let field of fieldRecords) {
+                const elementDestructors: (() => void)[] = []
+                for (const field of fieldRecords) {
                     const { jsValue, wireValue, stackDestructor } = field.write(ptr, o[field.name as never]);
                     elementDestructors.push(() => stackDestructor?.(jsValue, wireValue));
                 }

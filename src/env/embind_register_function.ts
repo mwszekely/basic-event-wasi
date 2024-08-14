@@ -22,12 +22,12 @@ export function _embind_register_function(
     signature: number,
     rawInvokerPtr: number,
     functionIndex: number,
-    isAsync: boolean
+    _isAsync: boolean
 ): void {
     const [returnTypeId, ...argTypeIds] = readArrayOfTypes(this, argCount, rawArgTypesPtr);
 
     _embind_register(this, namePtr, async (name) => {
-        (this.embind as any)[name] = await createGlueFunction(this, name, returnTypeId, argTypeIds, signature, rawInvokerPtr, functionIndex);
+        this.embind[name as never] = await createGlueFunction(this, name, returnTypeId, argTypeIds, signature, rawInvokerPtr, functionIndex);
     });
 }
 

@@ -13,6 +13,6 @@ declare namespace WebAssembly {
 export interface EmscriptenException extends WebAssembly.Exception {
     message: [string, string];
 }
-export declare function __throw_exception_with_stack_trace(this: InstantiatedWasm, ex: any): void;
+export declare function __throw_exception_with_stack_trace(this: InstantiatedWasm, ex: number): void;
 export {};
 //# sourceMappingURL=throw_exception_with_stack_trace.d.ts.map

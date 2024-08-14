@@ -2,7 +2,7 @@ import type { EventTypesMap } from "./_private/event-types-map.js";
 import { type KnownExports, type KnownImports } from "./types.js";
 export type RollupWasmPromise<I extends KnownImports = KnownImports> = (imports?: I) => Promise<WebAssembly.WebAssemblyInstantiatedSource>;
 interface InstantiatedWasmEventTarget extends EventTarget {
-    addEventListener<K extends keyof EventTypesMap>(type: K, listener: (this: FileReader, ev: EventTypesMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener<K extends keyof EventTypesMap>(type: K, listener: (this: FileReader, ev: EventTypesMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean): void;
 }
 declare const EventTargetW: {
@@ -12,7 +12,7 @@ declare const EventTargetW: {
 /**
  * Extension of `WebAssembly.WebAssemblyInstantiatedSource` that is also an `EventTarget` for all WASI "event"s (which, yes, is why this is an entire `class`).
  */
-export declare class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> extends EventTargetW implements WebAssembly.WebAssemblyInstantiatedSource {
+export declare class InstantiatedWasm<Exports extends object = object, Embind extends object = object> extends EventTargetW implements WebAssembly.WebAssemblyInstantiatedSource {
     /** The `WebAssembly.Module` this instance was built from. Rarely useful by itself. */
     module: WebAssembly.Module;
     /** The `WebAssembly.Module` this instance was built from. Rarely useful by itself. */
@@ -55,9 +55,7 @@ export declare class InstantiatedWasm<Exports extends {} = {}, Embind extends {}
      * @param wasmFetchPromise
      * @param unboundImports
      */
-    static instantiate<Exports extends {}, Embind extends {}>(wasmFetchPromise: Response | PromiseLike<Response>, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
-    static instantiate<Exports extends {}, Embind extends {}>(moduleBytes: WebAssembly.Module | BufferSource, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
-    static instantiate<Exports extends {}, Embind extends {}>(wasmInstantiator: RollupWasmPromise, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
+    static instantiate<Exports extends object, Embind extends object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
 }
 export {};
 //# sourceMappingURL=wasm.d.ts.map

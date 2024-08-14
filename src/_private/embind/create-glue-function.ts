@@ -18,7 +18,8 @@ import type { EmboundRegisteredType, WireTypes } from "./types.js";
  * @param invokerContext The context pointer to use, if any.
  * @returns 
  */
-export async function createGlueFunction<F extends ((...args: any[]) => any) | Function>(
+/* eslint @typescript-eslint/no-unsafe-function-type: "off" */
+export async function createGlueFunction<F extends ((...args: unknown[]) => unknown) | Function>(
     impl: InstantiatedWasm,
     name: string,
     returnTypeId: number,
@@ -27,16 +28,14 @@ export async function createGlueFunction<F extends ((...args: any[]) => any) | F
     invokerIndex: number,
     invokerContext: number | null
 ): Promise<F> {
-
-    type R = EmboundRegisteredType<WireTypes, any>;
-    type ArgTypes = EmboundRegisteredType<WireTypes, any>[];
-
+    type T = Parameters<F & ((...args: unknown[]) => unknown)>;
+    type R = EmboundRegisteredType<WireTypes, T[number]>;
+    type ArgTypes = EmboundRegisteredType<WireTypes, T[number]>[];
 
     const [returnType, ...argTypes] = await getTypeInfo<[R, ...ArgTypes]>(returnTypeId, ...argTypeIds);
-    const rawInvoker = getTableFunction<(...args: WireTypes[]) => any>(impl, invokerSignature, invokerIndex);
+    const rawInvoker = getTableFunction<(...args: WireTypes[]) => WireTypes>(impl, invokerSignature, invokerIndex);
 
-
-    return renameFunction(name, function (this: EmboundClass, ...jsArgs: any[]) {
+    return renameFunction(name, function (this: EmboundClass, ...jsArgs: unknown[]) {
         const wiredThis = this ? this._this : undefined;
         const wiredArgs: WireTypes[] = [];
         const stackBasedDestructors: (() => void)[] = [];   // Used to pretend like we're a part of the WASM stack, which would destroy these objects afterwards.
@@ -57,7 +56,7 @@ export async function createGlueFunction<F extends ((...args: any[]) => any) | F
         }
 
         // Finally, call the "raw" WASM function
-        let wiredReturn: WireTypes = rawInvoker(...wiredArgs);
+        const wiredReturn: WireTypes = rawInvoker(...wiredArgs);
 
         // Still pretending we're a part of the stack, 
         // now destruct everything we "pushed" onto it.
@@ -71,7 +70,7 @@ export async function createGlueFunction<F extends ((...args: any[]) => any) | F
         if (returnType == null)
             return undefined;
 
-        const { jsValue, wireValue, stackDestructor } = returnType?.fromWireType(wiredReturn);
+        const { jsValue, wireValue, stackDestructor } = returnType.fromWireType(wiredReturn);
         if (stackDestructor && !(jsValue && typeof jsValue == "object" && (Symbol.dispose in jsValue)))
             stackDestructor(jsValue, wireValue);
 

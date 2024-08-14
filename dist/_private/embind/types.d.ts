@@ -5,7 +5,7 @@ export type TypeID = number;
  *
  * `bigint`s are only used for `i64` types, or if `-sMEMORY64` is ever supported I suppose.
  */
-export interface EmboundRegisteredType<WireType extends WireTypes, T> {
+export interface EmboundRegisteredType<WireType extends WireTypes = WireTypes, T = unknown> {
     /** The name, as exported on the `embind` object. */
     name: string;
     /** The RTTI index that uniquely identifies this type */

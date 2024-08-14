@@ -6,9 +6,9 @@ export declare function _embind_register_value_object(this: InstantiatedWasm, ra
 /**
  * This function is called once per field, after `_embind_register_value_object` and before `_embind_finalize_value_object`.
  */
-export declare function _embind_register_value_object_field<T>(this: InstantiatedWasm, rawTypePtr: number, fieldName: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void;
+export declare function _embind_register_value_object_field(this: InstantiatedWasm, rawTypePtr: number, fieldName: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void;
 /**
  * Called after all other object registration functions are called; this contains the actual registration code.
  */
-export declare function _embind_finalize_value_object<T>(this: InstantiatedWasm, rawTypePtr: number): void;
+export declare function _embind_finalize_value_object(this: InstantiatedWasm, rawTypePtr: number): void;
 //# sourceMappingURL=embind_register_value_object.d.ts.map

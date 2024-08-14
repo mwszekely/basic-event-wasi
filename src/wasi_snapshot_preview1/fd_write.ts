@@ -21,7 +21,7 @@ export class FileDescriptorWriteEvent extends CustomEvent<FileDescriptorWriteEve
     }
     asString(label: string): string {
         return this.detail.data.map((d, index) => {
-            let decoded = getTextDecoder(label).decode(d);
+            const decoded = getTextDecoder(label).decode(d);
             if (decoded == "\0" && index == this.detail.data.length - 1)
                 return "";
             return decoded;

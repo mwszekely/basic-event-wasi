@@ -13,14 +13,14 @@ export function _embind_register_class_function(this: InstantiatedWasm,
     invokerSignaturePtr: number,
     invokerIndex: number,
     invokerContext: number,
-    isPureVirtual: number,
-    isAsync: number
+    _isPureVirtual: number,
+    _isAsync: number
 ): void {
-    const [returnTypeId, thisTypeId, ...argTypeIds] = readArrayOfTypes(this, argCount, rawArgTypesPtr);
+    const [returnTypeId, _thisTypeId, ...argTypeIds] = readArrayOfTypes(this, argCount, rawArgTypesPtr);
     //console.assert(thisTypeId != rawClassTypeId,`Internal error; expected the RTTI pointers for the class type and its pointer type to be different.`);
     _embind_register(this, methodNamePtr, async (name) => {
 
-        ((EmboundClasses[rawClassTypeId] as any).prototype as any)[name] = await createGlueFunction(
+        (EmboundClasses[rawClassTypeId].prototype as never)[name] = await createGlueFunction(
             this,
             name,
             returnTypeId,

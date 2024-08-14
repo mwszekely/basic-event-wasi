@@ -2,13 +2,13 @@ import { InstantiatedWasm } from "../../wasm.js";
 import type { EmboundRegisteredType, WireConversionResult, WireTypes } from "./types.js";
 export type CompositeElementRegistrationGetter<WT> = (getterContext: number, ptr: number) => WT;
 export type CompositeElementRegistrationSetter<WT> = (setterContext: number, ptr: number, wireType: WT) => void;
-export interface CompositeRegistrationInfo {
+export interface CompositeRegistrationInfo<WT extends WireTypes> {
     namePtr: number;
     _constructor(): number;
-    _destructor(ptr: WireTypes): void;
-    elements: CompositeElementRegistrationInfo<any, any>[];
+    _destructor(ptr: WT): void;
+    elements: CompositeElementRegistrationInfo<WT>[];
 }
-export interface CompositeElementRegistrationInfo<WT extends WireTypes, T> {
+export interface CompositeElementRegistrationInfo<WT extends WireTypes> {
     /** The "raw" getter, exported from Embind. Needs conversion between types. */
     wasmGetter: CompositeElementRegistrationGetter<WT>;
     /** The "raw" setter, exported from Embind. Needs conversion between types. */
@@ -22,7 +22,7 @@ export interface CompositeElementRegistrationInfo<WT extends WireTypes, T> {
     /** Unknown; used as an argument to the embind setter */
     setterContext: number;
 }
-export interface CompositeElementRegistrationInfoE<WT extends WireTypes, T> extends CompositeElementRegistrationInfo<WT, T> {
+export interface CompositeElementRegistrationInfoE<WT extends WireTypes, T> extends CompositeElementRegistrationInfo<WT> {
     /** A version of `wasmGetter` that handles type conversion */
     read(ptr: WT): WireConversionResult<WT, T>;
     /** A version of `wasmSetter` that handles type conversion */
@@ -32,7 +32,7 @@ export interface CompositeElementRegistrationInfoE<WT extends WireTypes, T> exte
     /** `setterReturnTypeId, but resolved to the parsed type info */
     setterArgumentType: EmboundRegisteredType<WT, T>;
 }
-export declare const compositeRegistrations: Record<number, CompositeRegistrationInfo>;
-export declare function _embind_register_value_composite<T>(impl: InstantiatedWasm, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void;
-export declare function _embind_finalize_composite_elements<I extends CompositeElementRegistrationInfoE<any, any>>(elements: CompositeElementRegistrationInfo<any, any>[]): Promise<I[]>;
+export declare const compositeRegistrations: Map<number, CompositeRegistrationInfo<WireTypes>>;
+export declare function _embind_register_value_composite(impl: InstantiatedWasm, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void;
+export declare function _embind_finalize_composite_elements<I extends CompositeElementRegistrationInfoE<WireTypes, unknown>>(elements: CompositeElementRegistrationInfo<WireTypes>[]): Promise<I[]>;
 //# sourceMappingURL=register-composite.d.ts.map

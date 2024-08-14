@@ -9,5 +9,5 @@ import type { InstantiatedWasm } from "../wasm.js";
  * @param functionIndex The index of the function in the `WebAssembly.Table` that's exported.
  * @param isAsync Unused...probably
  */
-export declare function _embind_register_function(this: InstantiatedWasm, namePtr: number, argCount: number, rawArgTypesPtr: number, signature: number, rawInvokerPtr: number, functionIndex: number, isAsync: boolean): void;
+export declare function _embind_register_function(this: InstantiatedWasm, namePtr: number, argCount: number, rawArgTypesPtr: number, signature: number, rawInvokerPtr: number, functionIndex: number, _isAsync: boolean): void;
 //# sourceMappingURL=embind_register_function.d.ts.map

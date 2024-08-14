@@ -51,6 +51,9 @@ export interface KnownExports {
     malloc(size: number): number;
     realloc(ptr: number, size: number): number;
 
+    _initialize?(): void;
+    _start?(): void;
+
     memory: WebAssembly.Memory;
     __indirect_function_table: WebAssembly.Table;
     __getTypeName(type: number): number;
@@ -61,18 +64,6 @@ export interface KnownExports {
     __thrown_object_from_unwind_exception(header: number): number;
     __get_exception_message(ptr: number, typePtrPtr: number, messagePtrPtr: number): number;
 }
-
-/**
- * Any WASI function will have `this` set to a `PrivateImpl` representing its global state.
- * 
- * Use this to implement those functions.
-
-export interface PrivateImpl {
-    //instance: WebAssembly.Instance;
-    //module: WebAssembly.Module;
-    source: InstantiatedWasm;
-
-} */
 
 export interface KnownImportsWasi {
     proc_exit: typeof proc_exit;
@@ -126,17 +117,3 @@ export interface KnownImports {
     wasi_snapshot_preview1: Partial<KnownImportsWasi>;
     env: Partial<KnownImportsEnv>;
 }
-
-
-/*
-export class WasiInstantiatedSource extends EventTarget implements WebAssembly.WebAssemblyInstantiatedSource {
-    instance: WebAssembly.Instance;
-    module: WebAssembly.Module;
-
-    constructor(p: WebAssembly.WebAssemblyInstantiatedSource) {
-        super();
-        this.instance = p.instance;
-        this.module = p.module;
-    }
-}
-*/

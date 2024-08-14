@@ -3,12 +3,12 @@ globalThis.TextDecoder ??= class TD implements TextDecoderCommon {
     encoding = 'utf8';
     fatal = false;
     ignoreBOM = false;
-    decode(input?: AllowSharedBufferSource, options?: TextDecodeOptions): string {
+    decode(input?: AllowSharedBufferSource, _options?: TextDecodeOptions): string {
         let i = 0;
         if (!input)
             return "";
 
-        let input2 = new Uint8Array((input instanceof ArrayBuffer) ? input : input.buffer);
+        const input2 = new Uint8Array((input instanceof ArrayBuffer) ? input : input.buffer);
 
         let ret = "";
         while (i < input.byteLength) {

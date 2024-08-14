@@ -1,6 +1,6 @@
 export declare const EmboundClasses: Record<number, typeof EmboundClass>;
-export declare const Secret: Symbol;
-export declare const SecretNoDispose: Symbol;
+export declare const Secret: symbol;
+export declare const SecretNoDispose: symbol;
 /**
  * Base class for all Embind-enabled classes.
  *
@@ -11,7 +11,7 @@ export declare class EmboundClass {
     /**
      * The transformed constructor function that takes JS arguments and returns a new instance of this class
      */
-    static _constructor: (...args: any[]) => EmboundClass;
+    static _constructor: (...args: unknown[]) => EmboundClass;
     /**
      * Assigned by the derived class when that class is registered.
      *
@@ -22,7 +22,7 @@ export declare class EmboundClass {
      * The pointer to the class in WASM memory; the same as the C++ `this` pointer.
      */
     protected _this: number;
-    constructor(...args: any[]);
+    constructor(...args: unknown[]);
     [Symbol.dispose](): void;
 }
 /**

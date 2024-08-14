@@ -13,10 +13,10 @@ export function _embind_register_class_class_function(this: InstantiatedWasm,
     invokerSignaturePtr: number,
     invokerIndex: number,
     invokerContext: number,
-    isAsync: number
+    _isAsync: number
 ): void {
     const [returnTypeId, ...argTypeIds] = readArrayOfTypes(this, argCount, rawArgTypesPtr);
     _embind_register(this, methodNamePtr, async (name) => {
-        ((EmboundClasses[rawClassTypeId] as any))[name] = await createGlueFunction(this, name, returnTypeId, argTypeIds, invokerSignaturePtr, invokerIndex, invokerContext);
+        EmboundClasses[rawClassTypeId][name as never] = await createGlueFunction(this, name, returnTypeId, argTypeIds, invokerSignaturePtr, invokerIndex, invokerContext);
     });
 }

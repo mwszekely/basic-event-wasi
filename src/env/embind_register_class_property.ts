@@ -20,10 +20,10 @@ export function _embind_register_class_property(
     
     _embind_register(this, fieldNamePtr, async (name) => {
 
-        const get = await createGlueFunction<() => any>(this, `${name}_getter`, getterReturnTypeId, [], getterSignaturePtr, getterIndex, getterContext);
-        const set = setterIndex? await createGlueFunction<(value: any) => void>(this, `${name}_setter`, 0, [setterArgumentTypeId], setterSignaturePtr, setterIndex, setterContext) : undefined;
+        const get = await createGlueFunction<() => unknown>(this, `${name}_getter`, getterReturnTypeId, [], getterSignaturePtr, getterIndex, getterContext);
+        const set = setterIndex? await createGlueFunction<(value: unknown) => void>(this, `${name}_setter`, 0, [setterArgumentTypeId], setterSignaturePtr, setterIndex, setterContext) : undefined;
 
-        Object.defineProperty(((EmboundClasses[rawClassTypeId] as any).prototype as any), name, {
+        Object.defineProperty((EmboundClasses[rawClassTypeId].prototype as unknown), name, {
             get,
             set,
         });

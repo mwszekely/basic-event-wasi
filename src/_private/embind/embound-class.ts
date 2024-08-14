@@ -11,8 +11,8 @@ const instantiatedClasses = new Map<number, WeakRef<EmboundClass>>();
 const destructorsYetToBeCalled = new Map<number, () => void>();
 
 // Used to ensure no one but the type converters can use the secret pointer constructor.
-export const Secret: Symbol = Symbol();
-export const SecretNoDispose: Symbol = Symbol();
+export const Secret: symbol = Symbol();
+export const SecretNoDispose: symbol = Symbol();
 
 // TODO: This needs proper testing, or possibly even justification for its existence.
 // I'm pretty sure only JS heap pressure will invoke a callback, making it kind of 
@@ -34,7 +34,7 @@ export class EmboundClass {
     /**
      * The transformed constructor function that takes JS arguments and returns a new instance of this class
      */
-    static _constructor: (...args: any[]) => EmboundClass;
+    static _constructor: (...args: unknown[]) => EmboundClass;
 
     /**
      * Assigned by the derived class when that class is registered.
@@ -48,7 +48,7 @@ export class EmboundClass {
      */
     protected _this!: number;
 
-    constructor(...args: any[]) {
+    constructor(...args: unknown[]) {
         const CreatedFromWasm = (args.length === 2 && (args[0] === Secret || args[0] == SecretNoDispose) && typeof args[1] === 'number');
 
         if (!CreatedFromWasm) {
@@ -75,7 +75,7 @@ export class EmboundClass {
              * class has already been instantiated in C++, and we
              * just need our "handle" to it in JS.
              */
-            const _this = args[1];
+            const _this = args[1] as number;
 
             // First, make sure we haven't instantiated this class yet.
             // We want all classes with the same `this` pointer to 

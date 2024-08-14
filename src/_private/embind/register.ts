@@ -13,7 +13,7 @@ export function _embind_register(impl: InstantiatedWasm, namePtr: number, func: 
 /** 
  * Same as `_embind_register`, but for known (or synthetic) names.
  */
-export function _embind_register_known_name(impl: InstantiatedWasm, name: string, func: (name: string) => (void | Promise<void>)): void {
+export function _embind_register_known_name(_impl: InstantiatedWasm, name: string, func: (name: string) => (void | Promise<void>)): void {
 
     const promise: Promise<void> = (async () => {
         let handle = 0;
@@ -21,7 +21,7 @@ export function _embind_register_known_name(impl: InstantiatedWasm, name: string
         // I guess it vaguely makes sense in a "determinism is good" way, 
         // but it also seems generally useful there?
         if (typeof setTimeout === 'function')
-            handle = setTimeout(() => { console.warn(`The function "${name}" uses an unsupported argument or return type, as its dependencies are not resolving. It's unlikely the embind promise will resolve.`); }, 1000) as any;
+            handle = setTimeout(() => { console.warn(`The function "${name}" uses an unsupported argument or return type, as its dependencies are not resolving. It's unlikely the embind promise will resolve.`); }, 1000);
         await func(name);
         if (handle)
             clearTimeout(handle);

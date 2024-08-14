@@ -3,6 +3,7 @@ import type { InstantiatedWasm } from "../wasm.js";
 
 export interface WebAssemblyExceptionEventDetail { exception: WebAssembly.Exception }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace WebAssembly {
     class Exception {
         constructor(tag: number, payload: number[], options?: { traceStack?: boolean });
@@ -13,15 +14,10 @@ declare namespace WebAssembly {
 export interface EmscriptenException extends WebAssembly.Exception {
     message: [string, string];
 }
-/*
-export class WebAssemblyExceptionEvent extends CustomEvent<WebAssemblyExceptionEventDetail> {
-    constructor(impl: InstantiatedWasm, exception: WebAssembly.Exception) {
-        super("WebAssemblyExceptionEvent", { cancelable: true, detail: { exception } })
-    }
-}
-*/
-export function __throw_exception_with_stack_trace(this: InstantiatedWasm, ex: any): void {
+
+export function __throw_exception_with_stack_trace(this: InstantiatedWasm, ex: number): void {
     const t = new WebAssembly.Exception((this.exports).__cpp_exception, [ex], { traceStack: true }) as EmscriptenException;
     t.message = getExceptionMessage(this, t);
+    // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw t;
 }

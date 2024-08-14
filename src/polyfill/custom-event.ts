@@ -1,11 +1,11 @@
 import type { EventTypesMap } from "../_private/event-types-map.js";
 
 // Worklets don't define `CustomEvent`, even when they do define `Event` itself...
-class CustomEvent<T = any> extends Event {
+class CustomEvent<T = unknown> extends Event {
 
     constructor(type: keyof EventTypesMap, eventInitDict?: CustomEventInit<T>) {
         super(type, eventInitDict);
-        this.detail = eventInitDict?.detail!;
+        this.detail = eventInitDict?.detail as never;
     }
 
     detail: T;
@@ -16,7 +16,7 @@ class CustomEvent<T = any> extends Event {
     }
 }
 
-(globalThis.CustomEvent as any) ??= (() => {
-    console.info(`This environment does not define CustomEvent; using a polyfill`);
+(globalThis.CustomEvent) ??= (() => {
+    // console.info(`This environment does not define CustomEvent; using a polyfill`);
     return CustomEvent;
-})()
+})() as never;

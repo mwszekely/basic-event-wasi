@@ -27,7 +27,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
 
 
     private _updateTypedArrayImpl(newAddress: number, newCount: number) {
-        this._impl = new this.TypedArray(this._instance.exports.memory.buffer, newAddress, newCount) as T;
+        this._impl = new this.TypedArray(this._instance.exports.memory.buffer, newAddress, newCount);
     }
 
     /**
@@ -36,7 +36,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      * @param offset Where to start writing to in this array
      */
     set(other: T, offset = 0): void {
-        this._impl.set(other as ArrayLike<any>, offset);
+        this._impl.set(other as never, offset);
     }
 
     /**
@@ -83,7 +83,8 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      */
     get address(): number | null { return this._ptr }
 
-    protected constructor(private TypedArray: { new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T }, protected _instance: InstantiatedWasm, protected _bytesPerWord: number, initialCount?: number | null) {
+    protected constructor(private TypedArray: new(buffer: ArrayBufferLike, byteOffset?: number, length?: number) => T, protected _instance: InstantiatedWasm, protected _bytesPerWord: number, initialCount?: number | null) {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         const { malloc, realloc, free } = _instance.exports;
         this._malloc = malloc;
         this._realloc = realloc;
@@ -91,7 +92,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
         this._currentCount = initialCount || 0;
 
         if (initialCount) {
-            this._ptr = this._malloc!(initialCount * this._bytesPerWord);
+            this._ptr = this._malloc(initialCount * this._bytesPerWord);
             this._updateTypedArrayImpl(this._ptr, initialCount);
         }
         else

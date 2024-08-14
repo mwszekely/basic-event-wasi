@@ -3,7 +3,7 @@ import type { InstantiatedWasm } from "../wasm.js";
 export interface MemoryGrowthEventDetail { index: number }
 
 export class MemoryGrowthEvent extends CustomEvent<MemoryGrowthEventDetail> {
-    constructor(impl: InstantiatedWasm, index: number) {
+    constructor(_impl: InstantiatedWasm, index: number) {
         super("MemoryGrowthEvent", { cancelable: false, detail: { index } })
     }
 }

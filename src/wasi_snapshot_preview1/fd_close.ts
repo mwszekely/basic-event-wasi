@@ -21,6 +21,6 @@ export class FileDescriptorCloseEvent extends CustomEvent<FileDescriptorCloseEve
 export function fd_close(this: InstantiatedWasm, fd: FileDescriptor): void {
     const event = new FileDescriptorCloseEvent(fd);
     if (this.dispatchEvent(event)) {
-
+        // TODO(maybe?): default behavior
     }
 }

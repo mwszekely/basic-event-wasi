@@ -15,17 +15,18 @@ export function clock_time_get(this: InstantiatedWasm, clk_id: number, _precisio
 
     let nowMs: number;
     switch (clk_id) {
-        case ClockId.REALTIME:
+        case +ClockId.REALTIME:
             nowMs = Date.now();
             break;
-        case ClockId.MONOTONIC:
+        case +ClockId.MONOTONIC:
             if (p == null) return ENOSYS;   // TODO: Possible to be null in Worklets?
             nowMs = p.now();
             break;
-        case ClockId.PROCESS_CPUTIME_ID:
-        case ClockId.THREAD_CPUTIME_ID:
+        case +ClockId.PROCESS_CPUTIME_ID:
+        case +ClockId.THREAD_CPUTIME_ID:
             return ENOSYS;
-        default: return EINVAL;
+        default:
+            return EINVAL;
     }
     const nowNs = BigInt(Math.round(nowMs * 1000 * 1000));
     writeUint64(this, outPtr, nowNs);

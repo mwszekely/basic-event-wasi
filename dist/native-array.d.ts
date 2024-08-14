@@ -48,9 +48,7 @@ declare abstract class NativeTypedArray<T extends AllTypedArrays> {
      * Returns the address of this array (for use with other WASM functions that expect a pointer that points to an array)
      */
     get address(): number | null;
-    protected constructor(TypedArray: {
-        new (buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
-    }, _instance: InstantiatedWasm, _bytesPerWord: number, initialCount?: number | null);
+    protected constructor(TypedArray: new (buffer: ArrayBufferLike, byteOffset?: number, length?: number) => T, _instance: InstantiatedWasm, _bytesPerWord: number, initialCount?: number | null);
     [Symbol.dispose](): void;
 }
 export declare class NativeInt8Array extends NativeTypedArray<Int8Array> {

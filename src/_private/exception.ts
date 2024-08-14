@@ -6,7 +6,7 @@ import { utf8ToStringZ } from "./string.js";
 
 
 export function getExceptionMessage(impl: InstantiatedWasm, ex: EmscriptenException): [string, string] {
-    var ptr = getCppExceptionThrownObjectFromWebAssemblyException(impl, ex);
+    const ptr = getCppExceptionThrownObjectFromWebAssemblyException(impl, ex);
     return getExceptionMessageCommon(impl, ptr);
 }
 

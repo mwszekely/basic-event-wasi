@@ -10,6 +10,7 @@ import { InstantiatedWasm } from "../wasm.js";
 export function readLatin1String(impl: InstantiatedWasm, ptr: number): string {
     let ret = "";
     let nextByte: number
+    // eslint-disable-next-line no-cond-assign
     while (nextByte = readUint8(impl, ptr++)) {
         ret += String.fromCharCode(nextByte);
     }
@@ -17,9 +18,9 @@ export function readLatin1String(impl: InstantiatedWasm, ptr: number): string {
 }
 
 // Note: In Worklets, `TextDecoder` and `TextEncoder` need a polyfill.
-let utf8Decoder = new TextDecoder("utf-8");
-let utf16Decoder = new TextDecoder("utf-16le");
-let utf8Encoder = new TextEncoder();
+const utf8Decoder = new TextDecoder("utf-8");
+const utf16Decoder = new TextDecoder("utf-16le");
+const utf8Encoder = new TextEncoder();
 
 /**
  * Decodes a null-terminated UTF-8 string. If you know the length of the string, you can save time by using `utf8ToStringL` instead.
@@ -63,7 +64,7 @@ export function utf16ToStringL(impl: InstantiatedWasm, ptr: number, wcharCount: 
 export function utf32ToStringL(impl: InstantiatedWasm, ptr: number, wcharCount: number): string {
     const chars = (new Uint32Array(impl.exports.memory.buffer, ptr, wcharCount));
     let ret = "";
-    for (let ch of chars) {
+    for (const ch of chars) {
         ret += String.fromCharCode(ch);
     }
     return ret;
@@ -74,7 +75,7 @@ export function stringToUtf8(string: string): ArrayBuffer {
 }
 
 export function stringToUtf16(string: string): ArrayBuffer {
-    let ret = new Uint16Array(new ArrayBuffer(string.length));
+    const ret = new Uint16Array(new ArrayBuffer(string.length));
     for (let i = 0; i < ret.length; ++i) {
         ret[i] = string.charCodeAt(i);
     }
@@ -85,7 +86,7 @@ export function stringToUtf32(string: string): ArrayBuffer {
     let trueLength = 0;
     // The worst-case scenario is a string of all surrogate-pairs, so allocate that.
     // We'll shrink it to the actual size afterwards.
-    let temp = new Uint32Array(new ArrayBuffer(string.length * 4 * 2));
+    const temp = new Uint32Array(new ArrayBuffer(string.length * 4 * 2));
     for (const ch of string) {
         temp[trueLength] = ch.codePointAt(0)!;
         ++trueLength;
@@ -104,7 +105,7 @@ export function stringToUtf32(string: string): ArrayBuffer {
 export function lengthBytesUTF8(str: string): number {
     let len = 0;
     for (let i = 0; i < str.length; ++i) {
-        let c = str.codePointAt(i)!;
+        const c = str.codePointAt(i)!;
         if (c <= 0x7F)
             len++;
         else if (c <= 0x7FF)

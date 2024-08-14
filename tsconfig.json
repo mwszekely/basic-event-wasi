@@ -19,5 +19,6 @@
     "inlineSources": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "exclude": ["./dist/**/*"]
 }

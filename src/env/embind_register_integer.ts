@@ -3,8 +3,8 @@ import { _embind_register } from "../_private/embind/register.js";
 import type { EmboundRegisteredType } from "../_private/embind/types.js";
 import type { InstantiatedWasm } from "../wasm.js";
 
-export function _embind_register_integer(this: InstantiatedWasm, typePtr: number, namePtr: number, byteWidth: number, minValue: number, maxValue: number): void {
-    _embind_register(this, namePtr, async (name) => {
+export function _embind_register_integer(this: InstantiatedWasm, typePtr: number, namePtr: number, byteWidth: number, minValue: number, _maxValue: number): void {
+    _embind_register(this, namePtr, (name) => {
 
         const isUnsignedType = (minValue === 0);
         const fromWireType = isUnsignedType ? fromWireTypeU(byteWidth) : fromWireTypeS(byteWidth);

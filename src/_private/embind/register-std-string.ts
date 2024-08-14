@@ -19,7 +19,7 @@ export function _embind_register_std_string_any(impl: InstantiatedWasm, typePtr:
     const writeUint = (charWidth == 1) ? writeUint8 : (charWidth == 2) ? writeUint16 : writeUint32;
 
 
-    _embind_register(impl, namePtr, async (name) => {
+    _embind_register(impl, namePtr, (name) => {
 
         const fromWireType = (ptr: number) => {
             // The wire type is a pointer to a "struct" (not really a struct in the usual sense...
@@ -27,11 +27,10 @@ export function _embind_register_std_string_any(impl: InstantiatedWasm, typePtr:
             // the first field is a size_t representing the length,
             // And the second "field" is the string data itself,
             // finally all ended with an extra null byte.
-            let length = readSizeT(impl, ptr);
-            let payload = ptr + getSizeTSize(impl);
-            let str: string = "";
-            let decodeStartPtr = payload;
-            str = utfToStringL(impl, decodeStartPtr, length);
+            const length = readSizeT(impl, ptr);
+            const payload = ptr + getSizeTSize(impl);
+            const decodeStartPtr = payload;
+            const str = utfToStringL(impl, decodeStartPtr, length);
 
             return {
                 jsValue: str,

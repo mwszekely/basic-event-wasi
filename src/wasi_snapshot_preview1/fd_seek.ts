@@ -19,7 +19,7 @@ export class FileDescriptorSeekEvent extends CustomEvent<FileDescriptorSeekEvent
 }
 
 /** POSIX lseek */
-export function fd_seek(this: InstantiatedWasm, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS {
+export function fd_seek(this: InstantiatedWasm, fd: FileDescriptor, _offset: number, _whence: number, _offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS {
     if (this.dispatchEvent(new FileDescriptorSeekEvent(fd))) {
         switch (fd) {
             case 0:

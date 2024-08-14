@@ -11,5 +11,5 @@ import { InstantiatedWasm } from "../../wasm.js";
  * @param invokerContext The context pointer to use, if any.
  * @returns
  */
-export declare function createGlueFunction<F extends ((...args: any[]) => any) | Function>(impl: InstantiatedWasm, name: string, returnTypeId: number, argTypeIds: number[], invokerSignature: number, invokerIndex: number, invokerContext: number | null): Promise<F>;
+export declare function createGlueFunction<F extends ((...args: unknown[]) => unknown) | Function>(impl: InstantiatedWasm, name: string, returnTypeId: number, argTypeIds: number[], invokerSignature: number, invokerIndex: number, invokerContext: number | null): Promise<F>;
 //# sourceMappingURL=create-glue-function.d.ts.map

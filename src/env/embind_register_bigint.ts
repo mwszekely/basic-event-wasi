@@ -3,8 +3,8 @@ import { _embind_register } from "../_private/embind/register.js";
 import type { InstantiatedWasm } from "../wasm.js";
 
 
-export function _embind_register_bigint(this: InstantiatedWasm, rawTypePtr: number, namePtr: number, size: number, minRange: bigint, maxRange: bigint): void {
-    _embind_register(this, namePtr, async (name) => {
+export function _embind_register_bigint(this: InstantiatedWasm, rawTypePtr: number, namePtr: number, _size: number, minRange: bigint, _maxRange: bigint): void {
+    _embind_register(this, namePtr, (name) => {
 
         const isUnsigned = (minRange === 0n);
         const fromWireType = isUnsigned ? fromWireTypeUnsigned : fromWireTypeSigned;

@@ -8,6 +8,6 @@ export declare function _embind_register(impl: InstantiatedWasm, namePtr: number
 /**
  * Same as `_embind_register`, but for known (or synthetic) names.
  */
-export declare function _embind_register_known_name(impl: InstantiatedWasm, name: string, func: (name: string) => (void | Promise<void>)): void;
+export declare function _embind_register_known_name(_impl: InstantiatedWasm, name: string, func: (name: string) => (void | Promise<void>)): void;
 export declare function awaitAllEmbind(): Promise<void>;
 //# sourceMappingURL=register.d.ts.map

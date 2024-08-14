@@ -13,13 +13,13 @@ export function _embind_register_class(
     rawType: number,
     rawPointerType: number,
     rawConstPointerType: number,
-    baseClassRawType: number,
-    getActualTypeSignature: number,
-    getActualTypePtr: number,
-    upcastSignature: number,
-    upcastPtr: number,
-    downcastSignature: number,
-    downcastPtr: number,
+    _baseClassRawType: number,
+    _getActualTypeSignature: number,
+    _getActualTypePtr: number,
+    _upcastSignature: number,
+    _upcastPtr: number,
+    _downcastSignature: number,
+    _downcastPtr: number,
     namePtr: number,
     destructorSignature: number,
     rawDestructorPtr: number): void {
@@ -33,22 +33,23 @@ export function _embind_register_class(
      * never really know when we're done.
      */
 
-    _embind_register(this, namePtr, async (name) => {
+    _embind_register(this, namePtr, (name) => {
         const rawDestructorInvoker = getTableFunction<(_this: number) => void>(this, destructorSignature, rawDestructorPtr);
 
         // TODO(?) It's probably not necessary to have EmboundClasses and this.embind basically be the same exact thing.
-        EmboundClasses[rawType] = (this.embind as any)[name] = renameFunction(name,
+        EmboundClasses[rawType] = this.embind[name as never] = renameFunction(name,
             // Unlike the constructor, the destructor is known early enough to assign now.
             // Probably because destructors can't be overloaded by anything so there's only ever one.
             // Anyway, assign it to this new class.
             class extends EmboundClass {
                 static _destructor = rawDestructorInvoker;
-            } as any);
+            }) as never;
 
         function fromWireType(_this: number): WireConversionResult<number, EmboundClass> { const jsValue = new EmboundClasses[rawType](Secret, _this); return { wireValue: _this, jsValue, stackDestructor: () => jsValue[Symbol.dispose]() } }
         function toWireType(jsObject: EmboundClass): WireConversionResult<number, EmboundClass> {
             return {
-                wireValue: (jsObject as any)._this,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-member-access
+                wireValue: (jsObject as any)._this as number,
                 jsValue: jsObject,
                 // Note: no destructors for any of these,
                 // because they're just for value-types-as-object-types.

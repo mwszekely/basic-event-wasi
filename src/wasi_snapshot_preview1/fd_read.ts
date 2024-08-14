@@ -81,15 +81,3 @@ export function fd_read(this: InstantiatedWasm, fd: FileDescriptor, iov: number,
 
     return 0;
 }
-
-
-const textDecoders = new Map<string, TextDecoder>();
-function getTextDecoder(label: string) {
-    let ret: TextDecoder | undefined = textDecoders.get(label);
-    if (!ret) {
-        ret = new TextDecoder(label);
-        textDecoders.set(label, ret);
-    }
-
-    return ret;
-}

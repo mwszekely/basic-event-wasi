@@ -13,5 +13,5 @@ export declare function registerEmbound<T>(impl: InstantiatedWasm, name: string,
  * For things like `int` or `bool`, this can just be called immediately upon registration.
  * @param info
  */
-export declare function finalizeType<WT extends WireTypes, T>(impl: InstantiatedWasm, name: string, parsedTypeInfo: Omit<EmboundRegisteredType<WT, T>, "name">): void;
+export declare function finalizeType<WT extends WireTypes, T>(_impl: InstantiatedWasm, name: string, parsedTypeInfo: Omit<EmboundRegisteredType<WT, T>, "name">): void;
 //# sourceMappingURL=finalize.d.ts.map

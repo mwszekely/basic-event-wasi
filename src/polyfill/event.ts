@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 
 // Polyfill for extremely limited environments, like Worklets.
 // This seems to exist in Chrome but not, e.g., Firefox, possibly Safari
@@ -46,7 +47,7 @@ class Event {
 
 };
 
-(globalThis.Event as any) ?? (() => {
-    console.info(`This environment does not define Event; using a polyfill.`)
+(globalThis.Event) ??= (() => {
+    // console.info(`This environment does not define Event; using a polyfill.`)
     return Event;
-})()
+})() as never;

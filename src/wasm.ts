@@ -8,7 +8,7 @@ export type RollupWasmPromise<I extends KnownImports = KnownImports> = (imports?
 
 
 interface InstantiatedWasmEventTarget extends EventTarget {
-    addEventListener<K extends keyof EventTypesMap>(type: K, listener: (this: FileReader, ev: EventTypesMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener<K extends keyof EventTypesMap>(type: K, listener: (this: FileReader, ev: EventTypesMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean): void;
 }
 
@@ -19,7 +19,7 @@ const EventTargetW = EventTarget as { new(): InstantiatedWasmEventTarget; protot
 /**
  * Extension of `WebAssembly.WebAssemblyInstantiatedSource` that is also an `EventTarget` for all WASI "event"s (which, yes, is why this is an entire `class`).
  */
-export class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> extends EventTargetW implements WebAssembly.WebAssemblyInstantiatedSource {
+export class InstantiatedWasm<Exports extends object = object, Embind extends object = object> extends EventTargetW implements WebAssembly.WebAssemblyInstantiatedSource {
     /** The `WebAssembly.Module` this instance was built from. Rarely useful by itself. */
     public module: WebAssembly.Module;
 
@@ -73,12 +73,8 @@ export class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> e
      * @param wasmFetchPromise 
      * @param unboundImports 
      */
-    static async instantiate<Exports extends {}, Embind extends {}>(wasmFetchPromise: Response | PromiseLike<Response>, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
-    static async instantiate<Exports extends {}, Embind extends {}>(moduleBytes: WebAssembly.Module | BufferSource, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
-    static async instantiate<Exports extends {}, Embind extends {}>(wasmInstantiator: RollupWasmPromise, unboundImports: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
-    static async instantiate<Exports extends {}, Embind extends {}>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<InstantiatedWasm<Exports, Embind>> {
+    static async instantiate<Exports extends object, Embind extends object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<InstantiatedWasm<Exports, Embind>> {
         // (These are just up here to not get in the way of the comments)
-        let wasm: InstantiatedWasm<Exports, Embind>;
         let module: WebAssembly.Module;
         let instance: WebAssembly.Instance;
 
@@ -90,7 +86,7 @@ export class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> e
         // First, bind all of our imports to the same object, 
         // which also happens to be the InstantiatedWasm we're returning (but could theoretically be something else).
         // This is how they'll be able to access memory and communicate with each other.
-        wasm = new InstantiatedWasm<Exports, Embind>();
+        const wasm: InstantiatedWasm<Exports, Embind> = new InstantiatedWasm<Exports, Embind>();
         const imports = {
             wasi_snapshot_preview1: bindAllFuncs(wasm, wasi_snapshot_preview1),
             env: bindAllFuncs(wasm, env),
@@ -119,11 +115,8 @@ export class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> e
         wasm.cachedMemoryView = new DataView(wasm.exports.memory.buffer);
 
         // Almost done -- now run WASI's `_start` or `_initialize` function.
-        console.assert(("_initialize" in wasm.instance.exports) != "_start" in wasm.instance.exports, `Expected either _initialize XOR _start to be exported from this WASM.`);
-        if ("_initialize" in wasm.instance.exports)
-            (wasm.instance.exports as any)._initialize();
-        else if ("_start" in wasm.instance.exports)
-            (wasm.instance.exports as any)._start();
+        console.assert(("_initialize" in wasm.instance.exports) != ("_start" in wasm.instance.exports), `Expected either _initialize XOR _start to be exported from this WASM.`);
+        (wasm.exports._initialize ?? wasm.exports._start)?.();
 
         // Wait for all Embind calls to resolve (they `await` each other based on the dependencies they need, and this resolves when all dependencies have too)
         await awaitAllEmbind();
@@ -134,10 +127,10 @@ export class InstantiatedWasm<Exports extends {} = {}, Embind extends {} = {}> e
 }
 
 // Given an object, binds each function in that object to p (shallowly).
-function bindAllFuncs<R extends {}>(p: InstantiatedWasm, r: R): R {
-    return Object.fromEntries(Object.entries(r).map(([key, func]) => { return [key, (typeof func == "function" ? func.bind(p) : func)] as const; })) as R;
+function bindAllFuncs<R extends object>(p: InstantiatedWasm, r: R): R {
+    return Object.fromEntries(Object.entries(r).map(([key, func]) => { return [key, (typeof func == "function" ? (func as (...args: unknown[]) => unknown).bind(p) : func)] as const; })) as R;
 }
 
 // Separated out for type reasons due to "Response" not existing in limited Worklet-like environments.
-function isResponse(arg: any): arg is Response | PromiseLike<Response> { return "then" in arg || ("Response" in globalThis && arg instanceof Response); }
+function isResponse(arg: object): arg is Response | PromiseLike<Response> { return "then" in arg || ("Response" in globalThis && arg instanceof Response); }
 

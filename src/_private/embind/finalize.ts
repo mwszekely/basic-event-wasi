@@ -9,7 +9,7 @@ import type { EmboundRegisteredType, WireTypes } from "./types.js";
  * @param value 
  */
 export function registerEmbound<T>(impl: InstantiatedWasm, name: string, value: T): void {
-    (impl.embind as any)[name] = value;
+    impl.embind[name as never] = value as never;
 }
 
 /**
@@ -18,8 +18,8 @@ export function registerEmbound<T>(impl: InstantiatedWasm, name: string, value: 
  * For things like `int` or `bool`, this can just be called immediately upon registration.
  * @param info 
  */
-export function finalizeType<WT extends WireTypes, T>(impl: InstantiatedWasm, name: string, parsedTypeInfo: Omit<EmboundRegisteredType<WT, T>, "name">): void {
+export function finalizeType<WT extends WireTypes, T>(_impl: InstantiatedWasm, name: string, parsedTypeInfo: Omit<EmboundRegisteredType<WT, T>, "name">): void {
     const info = { name, ...parsedTypeInfo };
-    let withResolvers = getDependencyResolvers(info.typeId);
+    const withResolvers = getDependencyResolvers<WT, T>(info.typeId);
     withResolvers.resolve(withResolvers.resolvedValue = info);
 }

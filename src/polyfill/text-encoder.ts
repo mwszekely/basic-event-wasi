@@ -24,9 +24,9 @@ globalThis.TextEncoder ??= class TD implements TextEncoderCommon {
         if (!input)
             return new Uint8Array();
 
-        let b = new Uint8Array(new ArrayBuffer(input.length));
+        const b = new Uint8Array(new ArrayBuffer(input.length));
         for (let i = 0; i < input.length; ++i) {
-            if (input[i].charCodeAt(0)! < 0x80)
+            if (input[i].charCodeAt(0) < 0x80)
                 b[i] = input[i].charCodeAt(0)!
         }
         return b;
