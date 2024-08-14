@@ -1,10 +1,10 @@
-import { InstantiatedWasi } from "../../instantiated-wasi.js";
+import { InstantiatedWasm } from "../../wasm.js";
 import { renameFunction } from "./create-named-function.js";
 import { runDestructors } from "./destructors.js";
 import { EmboundClass } from "./embound-class.js";
 import { getTableFunction } from "./get-table-function.js";
 import { getTypeInfo } from "./get-type-info.js";
-import { EmboundRegisteredType, WireTypes } from "./types.js";
+import type { EmboundRegisteredType, WireTypes } from "./types.js";
 
 /**
  * Creates a JS function that calls a C++ function, accounting for `this` types and context.
@@ -19,7 +19,7 @@ import { EmboundRegisteredType, WireTypes } from "./types.js";
  * @returns 
  */
 export async function createGlueFunction<F extends ((...args: any[]) => any) | Function>(
-    impl: InstantiatedWasi<{}>,
+    impl: InstantiatedWasm,
     name: string,
     returnTypeId: number,
     argTypeIds: number[],
@@ -29,7 +29,6 @@ export async function createGlueFunction<F extends ((...args: any[]) => any) | F
 ): Promise<F> {
 
     type R = EmboundRegisteredType<WireTypes, any>;
-    //type ThisType = null | undefined | EmboundRegisteredType<WireTypes, any>;
     type ArgTypes = EmboundRegisteredType<WireTypes, any>[];
 
 
@@ -69,6 +68,9 @@ export async function createGlueFunction<F extends ((...args: any[]) => any) | F
         // when ready.
         //
         // Otherwise (namely strings), dispose its original representation now.
+        if (returnType == null)
+            return undefined;
+
         const { jsValue, wireValue, stackDestructor } = returnType?.fromWireType(wiredReturn);
         if (stackDestructor && !(jsValue && typeof jsValue == "object" && (Symbol.dispose in jsValue)))
             stackDestructor(jsValue, wireValue);

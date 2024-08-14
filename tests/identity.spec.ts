@@ -1,82 +1,97 @@
 import { expect } from "@playwright/test";
 import { test } from "./fixture.js";
+import { StructTest } from "./stage/instantiate.js";
 
 
 test.describe('Identity', () => {
   test('Identity i8 works', async ({ page, wasm: { output } }) => {
     for (let i = -128; i < 128; ++i) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_i8(i).toString(), i);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_i8(i).toString(), i);
       await expect(output).toHaveText(i.toString());
     }
   });
 
   test('Identity u8 works', async ({ page, wasm: { output } }) => {
     for (let i = 0; i < 255; ++i) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_u8(i).toString(), i);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u8(i).toString(), i);
       await expect(output).toHaveText(i.toString());
     }
   });
 
   test('Identity i16 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(2, true);
+    const ToTest = generateTestableInts<number>(2, true);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_i16(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_i16(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity u16 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(2, false);
+    const ToTest = generateTestableInts<number>(2, false);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_u16(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u16(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity i32 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(4, true);
+    const ToTest = generateTestableInts<number>(4, true);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_i32(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_i32(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity u32 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(4, false);
+    const ToTest = generateTestableInts<number>(4, false);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_u32(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u32(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity i64 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(8, true);
+    const ToTest = generateTestableInts<bigint>(8, true);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_i64(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_i64(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity u64 works', async ({ page, wasm: { output } }) => {
-    const ToTest = generateTestableInts(8, false);
+    const ToTest = generateTestableInts<bigint>(8, false);
     for (const t of ToTest) {
-      await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_u64(i).toString(), t);
+      await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u64(i).toString(), t);
       await expect(output).toHaveText(t.toString());
     }
   });
 
   test('Identity string works', async ({ page, wasm: { output } }) => {
     const t = "Test string ✔️";
-    await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_string(i).toString(), t);
+    await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_string(i).toString(), t);
     await expect(output).toHaveText(t.toString());
   });
 
   test('Identity wstring works', async ({ page, wasm: { output } }) => {
     const t = "Test string ✔️";
-    await page.evaluate((i) => (window as any).output.innerHTML = (globalThis as any)._wasm.embind.identity_wstring(i).toString(), t);
+    await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_wstring(i).toString(), t);
     await expect(output).toHaveText(t.toString());
   });
 
+
+  test('Identity struct works', async ({ page, wasm }) => {
+    const t: StructTest = { number: 5, string: "test", triple: [10, 100, 1000] };
+    const ret = JSON.parse(await page.evaluate((json) => {
+      const t = JSON.parse(json);
+      const ret = _wasm.embind.identity_struct_copy(t);
+      return JSON.stringify(ret);
+    }, JSON.stringify(t))) as StructTest;
+    expect(ret.number).toEqual(t.number);
+    expect(ret.string).toEqual(t.string);
+    expect(ret.triple[0]).toEqual(t.triple[0]);
+    expect(ret.triple[1]).toEqual(t.triple[1]);
+    expect(ret.triple[2]).toEqual(t.triple[2]);
+  });
 
 
 

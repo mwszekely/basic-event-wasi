@@ -1,33 +1,33 @@
-import { EmscriptenException } from "../env/throw_exception_with_stack_trace.js";
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { EmscriptenException } from "../env/throw_exception_with_stack_trace.js";
 import { getPointerSize } from "../util/pointer.js";
 import { readPointer } from "../util/read-pointer.js";
+import { InstantiatedWasm } from "../wasm.js";
 import { utf8ToStringZ } from "./string.js";
 
 
-export function getExceptionMessage(impl: InstantiatedWasi<{}>, ex: EmscriptenException): [string, string] {
+export function getExceptionMessage(impl: InstantiatedWasm, ex: EmscriptenException): [string, string] {
     var ptr = getCppExceptionThrownObjectFromWebAssemblyException(impl, ex);
     return getExceptionMessageCommon(impl, ptr);
 }
 
-function getCppExceptionThrownObjectFromWebAssemblyException(impl: InstantiatedWasi<{}>, ex: EmscriptenException) {
+function getCppExceptionThrownObjectFromWebAssemblyException(impl: InstantiatedWasm, ex: EmscriptenException) {
     // In Wasm EH, the value extracted from WebAssembly.Exception is a pointer
     // to the unwind header. Convert it to the actual thrown value.
     const unwind_header: number = ex.getArg((impl.exports).__cpp_exception, 0);
     return (impl.exports).__thrown_object_from_unwind_exception(unwind_header);
 }
 
-function stackSave(impl: InstantiatedWasi<{}>) {
+function stackSave(impl: InstantiatedWasm) {
     return impl.exports.emscripten_stack_get_current();
 }
-function stackAlloc(impl: InstantiatedWasi<{}>, size: number) {
+function stackAlloc(impl: InstantiatedWasm, size: number) {
     return impl.exports._emscripten_stack_alloc(size);
 }
-function stackRestore(impl: InstantiatedWasi<{}>, stackPointer: number) {
+function stackRestore(impl: InstantiatedWasm, stackPointer: number) {
     return impl.exports._emscripten_stack_restore(stackPointer);
 }
 
-function getExceptionMessageCommon(impl: InstantiatedWasi<{}>, ptr: number): [string, string] {
+function getExceptionMessageCommon(impl: InstantiatedWasm, ptr: number): [string, string] {
     const sp = stackSave(impl);
     const type_addr_addr = stackAlloc(impl, getPointerSize(impl));
     const message_addr_addr = stackAlloc(impl, getPointerSize(impl));

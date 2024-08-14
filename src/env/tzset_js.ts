@@ -1,7 +1,7 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 
-export function _tzset_js(this: InstantiatedWasi<{}>,timezone: number, daylight: number, std_name: number, dst_name: number): void {
+export function _tzset_js(this: InstantiatedWasm,timezone: number, daylight: number, std_name: number, dst_name: number): void {
     debugger;
     // TODO
   }

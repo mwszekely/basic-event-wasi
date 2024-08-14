@@ -1,6 +1,6 @@
 import { EINVAL, ENOSYS, ESUCCESS } from "../errno.js";
-import { InstantiatedWasi } from "../instantiated-wasi.js";
 import { writeUint64 } from "../util/write-uint64.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 export enum ClockId {
     REALTIME = 0,
@@ -11,7 +11,7 @@ export enum ClockId {
 
 const p = (globalThis.performance);
 
-export function clock_time_get(this: InstantiatedWasi<{}>, clk_id: number, _precision: number, outPtr: number): number {
+export function clock_time_get(this: InstantiatedWasm, clk_id: number, _precision: number, outPtr: number): number {
 
     let nowMs: number;
     switch (clk_id) {

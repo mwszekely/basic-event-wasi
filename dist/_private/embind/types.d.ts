@@ -33,6 +33,4 @@ export interface WireConversionResult<WireType extends WireTypes, V> {
      */
     stackDestructor?: (value: V, wire: WireType) => void;
 }
-export interface EmboundTypes {
-}
 //# sourceMappingURL=types.d.ts.map

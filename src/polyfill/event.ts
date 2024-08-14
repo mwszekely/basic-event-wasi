@@ -2,9 +2,9 @@
 // Polyfill for extremely limited environments, like Worklets.
 // This seems to exist in Chrome but not, e.g., Firefox, possibly Safari
 // TODO: This is tiny, but a way to optimize it out for environments that *do* have `Event` would be nice...
- class Event {
+class Event {
 
-    constructor(type_: string, eventInitDict?: EventInit) {   
+    constructor(type_: string, eventInitDict?: EventInit) {
         this.bubbles = eventInitDict?.bubbles || false;
         this.cancelBubble = false;
         this.cancelable = eventInitDict?.cancelable || false;
@@ -18,7 +18,7 @@
         this.target = null;
         this.timeStamp = 0;
         this.type = type_;
-     }
+    }
 
     static NONE = 0;
     static CAPTURING_PHASE = 1;
@@ -38,12 +38,12 @@
     readonly target: EventTarget | null;
     readonly timeStamp: DOMHighResTimeStamp;
     type: string;
-    composedPath(): EventTarget[] { return []}
+    composedPath(): EventTarget[] { return [] }
     initEvent(type_: string, bubbles?: boolean, cancelable?: boolean): void { this.type = type_; this.bubbles = bubbles || this.bubbles; this.cancelable = cancelable || this.cancelable; }
     preventDefault(): void { this.defaultPrevented = true; }
     stopImmediatePropagation(): void { }
     stopPropagation(): void { }
-    
+
 };
 
 (globalThis.Event as any) ?? (() => {

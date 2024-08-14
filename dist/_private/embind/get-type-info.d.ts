@@ -1,4 +1,4 @@
-import { EmboundRegisteredType } from "./types.js";
+import type { EmboundRegisteredType } from "./types.js";
 export interface PromiseWithResolversAndValue<T> extends PromiseWithResolvers<T> {
     resolvedValue: T;
 }

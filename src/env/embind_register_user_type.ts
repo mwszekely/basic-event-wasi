@@ -1,6 +1,6 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
-export function _embind_register_user_type(this: InstantiatedWasi<{}>, ...args: number[]): void {
+export function _embind_register_user_type(this: InstantiatedWasm, ...args: number[]): void {
     debugger;
     // TODO...
 }

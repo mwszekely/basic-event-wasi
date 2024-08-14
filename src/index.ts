@@ -1,5 +1,3 @@
-
-export type { EmboundTypes } from "./_private/embind/types.js"
 export { AlignfaultError, alignfault } from "./env/alignfault.js"
 export { _embind_register_bigint } from "./env/embind_register_bigint.js"
 export { _embind_register_bool } from "./env/embind_register_bool.js"
@@ -34,8 +32,7 @@ export { fd_seek } from "./wasi_snapshot_preview1/fd_seek.js"
 export { fd_write } from "./wasi_snapshot_preview1/fd_write.js"
 export { proc_exit } from "./wasi_snapshot_preview1/proc_exit.js"
 
-export { instantiate } from "./instantiate.js"
-export { InstantiatedWasi } from "./instantiated-wasi.js"
+export { InstantiatedWasm } from "./wasm.js"
 
 export { copyToWasm } from "./util/copy-to-wasm.js"
 export { getPointer, getPointerSize, setPointer } from "./util/pointer.js"

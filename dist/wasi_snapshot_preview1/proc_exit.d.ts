@@ -1,4 +1,4 @@
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { InstantiatedWasm } from "../wasm.js";
 export interface AbortEventDetail {
     code: number;
 }
@@ -9,5 +9,5 @@ export declare class AbortEvent extends CustomEvent<AbortEventDetail> {
 export declare class AbortError extends Error {
     constructor(code: number);
 }
-export declare function proc_exit(this: InstantiatedWasi<{}>, code: number): void;
+export declare function proc_exit(this: InstantiatedWasm, code: number): void;
 //# sourceMappingURL=proc_exit.d.ts.map

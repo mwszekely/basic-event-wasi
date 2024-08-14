@@ -1,5 +1,5 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
+import { InstantiatedWasm } from "../wasm.js";
 export interface FileDescriptorCloseEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.
@@ -13,5 +13,5 @@ export declare class FileDescriptorCloseEvent extends CustomEvent<FileDescriptor
     constructor(fileDescriptor: number);
 }
 /** POSIX close */
-export declare function fd_close(this: InstantiatedWasi<{}>, fd: FileDescriptor): void;
+export declare function fd_close(this: InstantiatedWasm, fd: FileDescriptor): void;
 //# sourceMappingURL=fd_close.d.ts.map

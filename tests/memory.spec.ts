@@ -10,7 +10,7 @@ test('Memory growth works', async ({ page, wasm: { output } }) => {
   growPromise.then(p => { grown = true });
 
   for (let i = 10; i < 32; ++i) {
-    await page.evaluate((i) => (window as any).output.innerHTML = `Allocated ${toHexOrNull(1 << i, 4)} bytes at ${toHexOrNull((globalThis as any)._wasm.exports.malloc(0x1 << i), 4)}`, i);
+    await page.evaluate((i) => (window as any).output.innerHTML = `Allocated ${toHexOrNull(1 << i, 4)} bytes at ${toHexOrNull(_wasm.exports.malloc(0x1 << i), 4)}`, i);
     if (grown)
       break;
   }
@@ -25,10 +25,10 @@ test('Memory growth works', async ({ page, wasm: { output } }) => {
 test("Leaks in tests are detectable (test env. test)", async ({ page, wasm: { output } }) => {
   await page.evaluate(() => {
     for (let i = 0; i < OOMIterations; ++i) {
-      (globalThis as any)._wasm.exports.malloc(1);
+      _wasm.exports.malloc(1);
     }
   },);
-  const grown = await (page.evaluate(() => ((globalThis as any)._memoryGrowth) > 0));
+  const grown = await (page.evaluate(() => _memoryGrowth > 0));
   expect(grown).toBe(true);
 });
 
@@ -37,10 +37,10 @@ test("Leaks in tests are detectable (test env. test)", async ({ page, wasm: { ou
 test("Double-freeing aborts (test env. test)", async ({ page, wasm: { output } }) => {
 
   expect(await page.evaluate(() => {
-    const m = (globalThis as any)._wasm.exports.malloc(100);
-    (globalThis as any)._wasm.exports.free(m);
+    const m = _wasm.exports.malloc(100);
+    _wasm.exports.free(m);
     try {
-      (globalThis as any)._wasm.exports.free(m);
+      _wasm.exports.free(m);
       return false;
     }
     catch (ex) {
@@ -55,10 +55,10 @@ test("Passing/returning strings does not leak memory", async ({ page, wasm: { ou
 
   await page.evaluate(str => {
     for (let i = 0; i < OOMIterations; ++i) {
-      (globalThis as any)._wasm.embind.identity_string(str);
+      _wasm.embind.identity_string(str);
     }
   }, str);
-  const grown = await (page.evaluate(() => ((globalThis as any)._memoryGrowth) > 0));
+  const grown = await (page.evaluate(() => _memoryGrowth > 0));
   expect(grown).toBe(false);
 });
 
@@ -74,44 +74,41 @@ test("Passing/returning structs does not leak memory", async ({ page, wasm: { ou
   await page.evaluate(json => {
     for (let i = 0; i < OOMIterations; ++i) {
       const parsed = JSON.parse(json);
-      const returned = (globalThis as any)._wasm.embind.identity_struct_copy(parsed);
-      returned[Symbol.dispose]();
+      const returned = _wasm.embind.identity_struct_copy(parsed);
     }
   }, json);
-  const grown = await (page.evaluate(() => ((globalThis as any)._memoryGrowth)));
+  const grown = await (page.evaluate(() => _memoryGrowth));
   expect(grown).toBe(0);
 });
 
 test("Passing/returning classes does not leak memory", async ({ page, wasm: { output } }) => {
 
   await page.evaluate(() => {
-    const T = ((globalThis as any)._wasm.embind.TestClass as typeof TestClass);
-    const cls = new T(5, "test");
+    const cls = new _wasm.embind.TestClass(5, "test");
     for (let i = 0; i < OOMIterations; ++i) {
-      const returned = T.identityCopy(cls);
+      const returned = _wasm.embind.TestClass.identityCopy(cls);
       if (returned == cls)
-          throw new Error("Expected copy to return a different instance of the class");
+        throw new Error("Expected copy to return a different instance of the class");
       returned[Symbol.dispose]();
     }
     cls[Symbol.dispose]();
   });
-  const grown = await (page.evaluate(() => ((globalThis as any)._memoryGrowth)));
+  const grown = await (page.evaluate(() => _memoryGrowth));
   expect(grown).toBe(0);
 })
 
 test("Passing/returning class pointers does not leak memory", async ({ page, wasm: { output } }) => {
 
   await page.evaluate(() => {
-    const T = ((globalThis as any)._wasm.embind.TestClass as typeof TestClass);
-    const cls = new T(5, "test");
+    const cls = new _wasm.embind.TestClass(5, "test");
     for (let i = 0; i < OOMIterations; ++i) {
-      const returned = T.identityPointer(cls);
+      const returned = _wasm.embind.TestClass.identityPointer(cls);
       if (returned != cls)
-          throw new Error("Expected identity to return the same instance of the class");
+        throw new Error("Expected identity to return the same instance of the class");
     }
     cls[Symbol.dispose]();
   });
-  const grown = await (page.evaluate(() => ((globalThis as any)._memoryGrowth)));
+  const grown = await (page.evaluate(() => _memoryGrowth));
   expect(grown).toBe(0);
 })
 

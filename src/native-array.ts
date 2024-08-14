@@ -1,5 +1,5 @@
-import { InstantiatedWasi } from "./instantiated-wasi.js";
-import { Pointer } from "./types.js";
+import { type Pointer } from "./types.js";
+import { InstantiatedWasm } from "./wasm.js";
 
 type AllTypedArrays = Uint8Array | Int8Array | Uint8ClampedArray | Uint16Array | Int16Array | Uint32Array | Int32Array | BigInt64Array | BigUint64Array;
 
@@ -83,7 +83,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      */
     get address(): number | null { return this._ptr }
 
-    protected constructor(private TypedArray: { new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T }, protected _instance: InstantiatedWasi<{}>, protected _bytesPerWord: number, initialCount?: number | null) {
+    protected constructor(private TypedArray: { new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T }, protected _instance: InstantiatedWasm, protected _bytesPerWord: number, initialCount?: number | null) {
         const { malloc, realloc, free } = _instance.exports;
         this._malloc = malloc;
         this._realloc = realloc;
@@ -97,25 +97,25 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
         else
             this._ptr = null;
 
-            
+
         this._updateTypedArrayImpl(this._ptr || 0, initialCount || 0);
     }
 
-    [Symbol.dispose](): void { 
-        if (this._ptr) 
-            this._free!(this._ptr); 
+    [Symbol.dispose](): void {
+        if (this._ptr)
+            this._free!(this._ptr);
     }
 }
 
-export class NativeInt8Array extends NativeTypedArray<Int8Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int8Array, instance, 1, initialCount); } }
-export class NativeUint8Array extends NativeTypedArray<Uint8Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint8Array, instance, 1, initialCount); } }
-export class NativeUint8ClampedArray extends NativeTypedArray<Uint8ClampedArray> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint8ClampedArray, instance, 1, initialCount); } }
+export class NativeInt8Array extends NativeTypedArray<Int8Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Int8Array, instance, 1, initialCount); } }
+export class NativeUint8Array extends NativeTypedArray<Uint8Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Uint8Array, instance, 1, initialCount); } }
+export class NativeUint8ClampedArray extends NativeTypedArray<Uint8ClampedArray> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Uint8ClampedArray, instance, 1, initialCount); } }
 
-export class NativeInt16Array extends NativeTypedArray<Int16Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int16Array, instance, 2, initialCount); } }
-export class NativeUint16Array extends NativeTypedArray<Uint16Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint16Array, instance, 2, initialCount); } }
+export class NativeInt16Array extends NativeTypedArray<Int16Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Int16Array, instance, 2, initialCount); } }
+export class NativeUint16Array extends NativeTypedArray<Uint16Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Uint16Array, instance, 2, initialCount); } }
 
-export class NativeInt32Array extends NativeTypedArray<Int32Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Int32Array, instance, 4, initialCount); } }
-export class NativeUint32Array extends NativeTypedArray<Uint32Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(Uint32Array, instance, 4, initialCount); } }
+export class NativeInt32Array extends NativeTypedArray<Int32Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Int32Array, instance, 4, initialCount); } }
+export class NativeUint32Array extends NativeTypedArray<Uint32Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(Uint32Array, instance, 4, initialCount); } }
 
-export class NativeBigInt64Array extends NativeTypedArray<BigInt64Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(BigInt64Array, instance, 8, initialCount); } }
-export class NativeBigUint64Array extends NativeTypedArray<BigUint64Array> { constructor(instance: InstantiatedWasi<{}>, initialCount: number | null | undefined) { super(BigUint64Array, instance, 8, initialCount); } }
+export class NativeBigInt64Array extends NativeTypedArray<BigInt64Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(BigInt64Array, instance, 8, initialCount); } }
+export class NativeBigUint64Array extends NativeTypedArray<BigUint64Array> { constructor(instance: InstantiatedWasm, initialCount: number | null | undefined) { super(BigUint64Array, instance, 8, initialCount); } }

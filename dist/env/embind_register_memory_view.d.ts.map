@@ -1,1 +1,1 @@
-{"version":3,"file":"embind_register_memory_view.d.ts","sourceRoot":"","sources":["../../src/env/embind_register_memory_view.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,yBAAyB,CAAC;AAGhE,wBAAgB,4BAA4B,CAAC,IAAI,EAAE,gBAAgB,CAAC,EAAE,CAAC,EAAE,EAAE,EAAE,GAAG,GAAG,IAAI,CAEtF"}
+{"version":3,"file":"embind_register_memory_view.d.ts","sourceRoot":"","sources":["../../src/env/embind_register_memory_view.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,YAAY,CAAC;AAGnD,wBAAgB,4BAA4B,CAAC,IAAI,EAAE,gBAAgB,EAAE,EAAE,EAAE,GAAG,GAAG,IAAI,CAElF"}

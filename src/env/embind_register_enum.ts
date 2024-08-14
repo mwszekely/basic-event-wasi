@@ -1,10 +1,10 @@
 import { finalizeType, registerEmbound } from "../_private/embind/finalize.js";
 import { _embind_register } from "../_private/embind/register.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 const AllEnums: Record<number, Record<string, number>> = {};
 
-export function _embind_register_enum(this: InstantiatedWasi<{}>, typePtr: number, namePtr: number, size: number, isSigned: boolean): void {
+export function _embind_register_enum(this: InstantiatedWasm, typePtr: number, namePtr: number, size: number, isSigned: boolean): void {
     _embind_register(this, namePtr, async (name) => {
 
         // Create the enum object that the user will inspect to look for enum values
@@ -25,7 +25,7 @@ export function _embind_register_enum(this: InstantiatedWasi<{}>, typePtr: numbe
 }
 
 
-export function _embind_register_enum_value(this: InstantiatedWasi<{}>, rawEnumType: number, namePtr: number, enumValue: number): void {
+export function _embind_register_enum_value(this: InstantiatedWasm, rawEnumType: number, namePtr: number, enumValue: number): void {
     _embind_register(this, namePtr, async (name) => {
         // Just add this name's value to the existing enum type.
         AllEnums[rawEnumType][name] = enumValue;

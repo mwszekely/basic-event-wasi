@@ -12,9 +12,12 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "inlineSourceMap": true,
     "declarationMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "useUnknownInCatchVariables": true
   },
   "include": ["./src/**/*"]
 }

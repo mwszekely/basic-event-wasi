@@ -1,1 +1,1 @@
-{"version":3,"file":"segfault.d.ts","sourceRoot":"","sources":["../../src/env/segfault.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,MAAM,yBAAyB,CAAC;AAE3D,qBAAa,aAAc,SAAQ,KAAK;;CAIvC;AAGD,wBAAgB,QAAQ,CAAC,IAAI,EAAE,gBAAgB,CAAC,EAAE,CAAC,GAAG,KAAK,CAE1D"}
+{"version":3,"file":"segfault.d.ts","sourceRoot":"","sources":["../../src/env/segfault.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,MAAM,YAAY,CAAC;AAE9C,qBAAa,aAAc,SAAQ,KAAK;;CAIvC;AAGD,wBAAgB,QAAQ,CAAC,IAAI,EAAE,gBAAgB,GAAG,KAAK,CAEtD"}

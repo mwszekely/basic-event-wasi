@@ -3,13 +3,13 @@ import { EmboundClass, EmboundClasses, Secret } from "../_private/embind/embound
 import { finalizeType } from "../_private/embind/finalize.js";
 import { getTableFunction } from "../_private/embind/get-table-function.js";
 import { _embind_register } from "../_private/embind/register.js";
-import { WireConversionResult } from "../_private/embind/types.js";
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { WireConversionResult } from "../_private/embind/types.js";
+import { InstantiatedWasm } from "../wasm.js";
 export { inspectClassByPointer } from "../_private/embind/embound-class.js";
 
 
 export function _embind_register_class(
-    this: InstantiatedWasi<{}>,
+    this: InstantiatedWasm,
     rawType: number,
     rawPointerType: number,
     rawConstPointerType: number,

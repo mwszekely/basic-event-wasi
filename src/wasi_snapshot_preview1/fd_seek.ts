@@ -1,6 +1,6 @@
 import { EBADF, ESUCCESS } from "../errno.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor, Pointer } from "../types.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 export interface FileDescriptorSeekEventDetail {
     /**
@@ -19,7 +19,7 @@ export class FileDescriptorSeekEvent extends CustomEvent<FileDescriptorSeekEvent
 }
 
 /** POSIX lseek */
-export function fd_seek(this: InstantiatedWasi<{}>, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS {
+export function fd_seek(this: InstantiatedWasm, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS {
     if (this.dispatchEvent(new FileDescriptorSeekEvent(fd))) {
         switch (fd) {
             case 0:

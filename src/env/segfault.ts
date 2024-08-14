@@ -1,4 +1,4 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 export class SegfaultError extends Error {
     constructor() {
@@ -7,6 +7,6 @@ export class SegfaultError extends Error {
 }
 
 // Used by SAFE_HEAP
-export function segfault(this: InstantiatedWasi<{}>): never {
+export function segfault(this: InstantiatedWasm): never {
     throw new SegfaultError();
 }

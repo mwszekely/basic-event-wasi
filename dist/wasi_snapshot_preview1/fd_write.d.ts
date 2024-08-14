@@ -1,6 +1,6 @@
 import { EBADF, ESUCCESS } from "../errno.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
+import type { InstantiatedWasm } from "../wasm.js";
 export interface FileDescriptorWriteEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.
@@ -19,5 +19,5 @@ export declare class UnhandledFileWriteEvent extends Error {
     constructor(fd: number);
 }
 /** POSIX writev */
-export declare function fd_write(this: InstantiatedWasi<{}>, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): typeof ESUCCESS | typeof EBADF;
+export declare function fd_write(this: InstantiatedWasm, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): typeof ESUCCESS | typeof EBADF;
 //# sourceMappingURL=fd_write.d.ts.map

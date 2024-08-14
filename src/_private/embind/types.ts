@@ -42,7 +42,3 @@ export interface WireConversionResult<WireType extends WireTypes, V> {
     stackDestructor?: (value: V, wire: WireType) => void;
 }
 
-export interface EmboundTypes {
-
-}
-

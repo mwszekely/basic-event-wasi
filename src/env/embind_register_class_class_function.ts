@@ -2,10 +2,10 @@ import { createGlueFunction } from "../_private/embind/create-glue-function.js";
 import { EmboundClasses } from "../_private/embind/embound-class.js";
 import { readArrayOfTypes } from "../_private/embind/read-array-of-types.js";
 import { _embind_register } from "../_private/embind/register.js";
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 
-export function _embind_register_class_class_function(this: InstantiatedWasi<{}>,
+export function _embind_register_class_class_function(this: InstantiatedWasm,
     rawClassTypeId: number,
     methodNamePtr: number,
     argCount: number,

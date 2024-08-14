@@ -1,7 +1,7 @@
 import { createGlueFunction } from "../_private/embind/create-glue-function.js";
 import { readArrayOfTypes } from "../_private/embind/read-array-of-types.js";
 import { _embind_register } from "../_private/embind/register.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 
 /**
@@ -15,7 +15,7 @@ import type { InstantiatedWasi } from "../instantiated-wasi.js";
  * @param isAsync Unused...probably
  */
 export function _embind_register_function(
-    this: InstantiatedWasi<{}>,
+    this: InstantiatedWasm,
     namePtr: number,
     argCount: number,
     rawArgTypesPtr: number,

@@ -1,4 +1,4 @@
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { InstantiatedWasm } from "../wasm.js";
 export interface WebAssemblyExceptionEventDetail {
     exception: WebAssembly.Exception;
 }
@@ -13,6 +13,6 @@ declare namespace WebAssembly {
 export interface EmscriptenException extends WebAssembly.Exception {
     message: [string, string];
 }
-export declare function __throw_exception_with_stack_trace(this: InstantiatedWasi<{}>, ex: any): void;
+export declare function __throw_exception_with_stack_trace(this: InstantiatedWasm, ex: any): void;
 export {};
 //# sourceMappingURL=throw_exception_with_stack_trace.d.ts.map

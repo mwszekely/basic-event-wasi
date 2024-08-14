@@ -1,5 +1,5 @@
-import { InstantiatedWasi } from "../../instantiated-wasi.js";
-import { EmboundRegisteredType, WireConversionResult, WireTypes } from "./types.js";
+import { InstantiatedWasm } from "../../wasm.js";
+import type { EmboundRegisteredType, WireConversionResult, WireTypes } from "./types.js";
 export type CompositeElementRegistrationGetter<WT> = (getterContext: number, ptr: number) => WT;
 export type CompositeElementRegistrationSetter<WT> = (setterContext: number, ptr: number, wireType: WT) => void;
 export interface CompositeRegistrationInfo {
@@ -33,6 +33,6 @@ export interface CompositeElementRegistrationInfoE<WT extends WireTypes, T> exte
     setterArgumentType: EmboundRegisteredType<WT, T>;
 }
 export declare const compositeRegistrations: Record<number, CompositeRegistrationInfo>;
-export declare function _embind_register_value_composite<T>(impl: InstantiatedWasi<{}>, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void;
+export declare function _embind_register_value_composite<T>(impl: InstantiatedWasm, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void;
 export declare function _embind_finalize_composite_elements<I extends CompositeElementRegistrationInfoE<any, any>>(elements: CompositeElementRegistrationInfo<any, any>[]): Promise<I[]>;
 //# sourceMappingURL=register-composite.d.ts.map

@@ -1,6 +1,6 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 export declare class AlignfaultError extends Error {
     constructor();
 }
-export declare function alignfault(this: InstantiatedWasi<{}>): never;
+export declare function alignfault(this: InstantiatedWasm): never;
 //# sourceMappingURL=alignfault.d.ts.map

@@ -1,4 +1,4 @@
-import { InstantiatedWasi } from "../../instantiated-wasi.js";
+import { InstantiatedWasm } from "../../wasm.js";
 /**
  * Creates a JS function that calls a C++ function, accounting for `this` types and context.
  *
@@ -11,5 +11,5 @@ import { InstantiatedWasi } from "../../instantiated-wasi.js";
  * @param invokerContext The context pointer to use, if any.
  * @returns
  */
-export declare function createGlueFunction<F extends ((...args: any[]) => any) | Function>(impl: InstantiatedWasi<{}>, name: string, returnTypeId: number, argTypeIds: number[], invokerSignature: number, invokerIndex: number, invokerContext: number | null): Promise<F>;
+export declare function createGlueFunction<F extends ((...args: any[]) => any) | Function>(impl: InstantiatedWasm, name: string, returnTypeId: number, argTypeIds: number[], invokerSignature: number, invokerIndex: number, invokerContext: number | null): Promise<F>;
 //# sourceMappingURL=create-glue-function.d.ts.map

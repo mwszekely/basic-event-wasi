@@ -28,7 +28,7 @@ In general (and this is emphasized throughout this Readme), consider using Emscr
 ## How to use
 
 ```typescript
-import { instantiate } from "basic-event-wasi/instantiate.js";
+import { InstantiatedWasm, type KnownImports } from "basic-event-wasi/wasm.js";
 
 // Pick and choose the WASI functions your compiled code needs
 // (There's no way to automate this--use Emscripten in full for that.
@@ -37,7 +37,7 @@ import { fd_read } from "basic-event-wasi/wasi_snapshot_preview1/fd_read.js";
 import { fd_write } from "basic-event-wasi/wasi_snapshot_preview1/fd_write.js";
 // (...etc...)
 
-const imports: EntirePublicInterface = {
+const imports: KnownImports = {
     wasi_snapshot_preview1: {
         fd_close,
         fd_read,
@@ -56,7 +56,7 @@ const imports: EntirePublicInterface = {
     }
 }
 
-const wasm = await instantiate(fetch("program.wasm"), imports);
+const wasm = await InstantiatedWasm.instantiate(fetch("program.wasm"), imports);
 
 // `wasm` has the same interface as `WebAssembly.WebAssemblyInstantiatedSource`
 wasm.instance.exports.memory.buffer;
@@ -90,24 +90,9 @@ In general, anything outside of very standard, plain WebAssembly-as-specified wo
 
 ## API
 
-### `instantiate(wasm, imports)`
+### `InstantiatedWasm`
 
-Effectively a wrapper around `WebAssembly.instantiate` (or `WebAssembly.instantiateStreaming`) that includes all the necessary WASI machinery. Returns a Promise to the instantiated WASM.
-
-`instantiate` can be given a few different types of data for the `wasm` parameter:
-
-* `Response`/`Promise<Response>`, like what you'd get from `fetch`. Uses `WebAssembly.instantiateStreaming`.
-* `ArrayBuffer` of the raw data, if you've already got it (e.g. if you've inlined some base64). Uses `WebAssembly.instantiate`.
-* `WebAssembly.Module`, if you want to create a new instance of an existing WASM instance. Uses `WebAssembly.instantiate`.
-* For the most general use-cases, you can pass a function that's expected to call `WebAssembly.instantiate` (or something similar) with the given `imports` parameter. The other options above do this internally.
-
-For `imports`, you'll need to provide all the WASI (and related) functions that your WASM program requires. These can be found in the `/wasi_snapshot_preview1` and `/env` directories. You can see which ones you need by analyzing your WASM binary's text representation, using a tool like [wasm2wat](https://webassembly.github.io/wabt/demo/wasm2wat/). Or trial and error. (Or just use Emscripten's full output, which does this for you, etc.)
-
-The returned promise will resolve to...
-
-### `InstantiatedWasi`
-
-This is effectively `WebAssembly.WebAssemblyInstantiatedSource` attached to an `EventTarget`.
+This is effectively `WebAssembly.WebAssemblyInstantiatedSource` attached to an `EventTarget`. Additionally, in Typescript its exports are strongly typed.
 
 * `instance` returns the `WebAssembly.Instance` currently in-use
 * `module` returns the `WebAssembly.Module` the instance is based off
@@ -116,6 +101,14 @@ This is effectively `WebAssembly.WebAssemblyInstantiatedSource` attached to an `
 * `cachedMemoryView` is a `DataView` representing the current memory; it auto-refreshes if the instance's memory grows. By always referencing this property, you can ensure you have a live view of memory even after memory growth events.
 
 Being an `EventTarget`, things like `addEventListener` are there too, which you can use to listen for events to handle.
+
+Note that you must construct this class via the `static` method `instantiate`, as the constructor is private. It works like `WebAssembly.instantiate` or `WebAssembly.instantiateStreaming` with the arguments you give it. The first is the source, one of:
+* `Response`/`Promise<Response>`, like what you'd get from `fetch`. Uses `WebAssembly.instantiateStreaming`.
+* `ArrayBuffer` of the raw data, if you've already got it (e.g. if you've inlined some base64). Uses `WebAssembly.instantiate`.
+* `WebAssembly.Module`, if you want to create a new instance of an existing WASM instance. Uses `WebAssembly.instantiate`.
+* For the most general use-cases, you can pass a function that's expected to call `WebAssembly.instantiate` (or something similar) with the given `imports` parameter. The other options above do this internally.
+
+For the second `imports` parameter, you'll need to provide all the WASI (and related) functions that your WASM program requires. These can be found in the `/wasi_snapshot_preview1` and `/env` directories. You can see which ones you need by analyzing your WASM binary's text representation, using a tool like [wasm2wat](https://webassembly.github.io/wabt/demo/wasm2wat/). Or trial and error. (Or just use Emscripten's full output, which does this for you, etc.)
 
 ### Polyfills
 
@@ -131,10 +124,10 @@ import { instantiate } from "basic-event-wasi/instantiate.js"
 // ...the rest of your Worklet's imports and code
 ```
 
-## Implemented interfaces
+### Implemented imports
 
 
-### WASI
+#### WASI
 
 If the function dispatches an event, the default behavior occurs if `e.preventDefault()` is not called. Otherwise, the default behavior always occurs.
 
@@ -151,7 +144,7 @@ If the function dispatches an event, the default behavior occurs if `e.preventDe
 |`__throw_exception_with_stack_trace`| |Throws the `WebAssembly.Exception`. Like `Emscripten` by itself, this will have a `message` field of type `[type: string, message?: string]`.|
 |`emscripten_notify_memory_growth`|✔️|Refreshes `cachedMemoryView`|
 
-### Env
+#### Env
 |Function|Event?|Default behavior|
 |--------|------|----------------|
 |`segfault`| |Throws a `SegfaultError`. Used by `-sSAFE_HEAP`.|
@@ -160,7 +153,7 @@ If the function dispatches an event, the default behavior occurs if `e.preventDe
 |`embind_*`| |Adds values and functions to the `embind` object|
 
 
-## Embindables
+### Embindables
 
 Embind support is limited to the following at present:
 
@@ -198,7 +191,7 @@ Notably not supported:
 
 Note that trying to use Embind on a function that depends on an incompatible type will result in `instantiate` hanging infinitely, waiting for a type definition that will never come (a warning will be printed to the console in this case).
 
-## Utility Functions
+### Utility Functions
 
 These are not directly related to WASI, but are too necessary to leave out, so they're provided as general-use exports for any consumer:
 

@@ -1,27 +1,21 @@
 import { runDestructors } from "../_private/embind/destructors.js";
 import { finalizeType } from "../_private/embind/finalize.js";
 import { getTableFunction } from "../_private/embind/get-table-function.js";
-import { _embind_finalize_composite_elements, _embind_register_value_composite, CompositeElementRegistrationGetter, CompositeElementRegistrationInfo, CompositeElementRegistrationInfoE, CompositeElementRegistrationSetter, CompositeRegistrationInfo, compositeRegistrations } from "../_private/embind/register-composite.js";
+import { _embind_finalize_composite_elements, _embind_register_value_composite, type CompositeElementRegistrationGetter, type CompositeElementRegistrationInfo, type CompositeElementRegistrationInfoE, type CompositeElementRegistrationSetter, compositeRegistrations } from "../_private/embind/register-composite.js";
 import { _embind_register } from "../_private/embind/register.js";
-import { WireTypes } from "../_private/embind/types.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { WireTypes } from "../_private/embind/types.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
-
-
-
-interface ArrayRegistrationInfo extends CompositeRegistrationInfo { }
 interface ArrayElementRegistrationInfo<WT extends WireTypes, T> extends CompositeElementRegistrationInfo<WT, T> { }
 interface ArrayElementRegistrationInfoE<WT extends WireTypes, T> extends ArrayElementRegistrationInfo<WT, T>, CompositeElementRegistrationInfoE<WT, T> { }
 
-
-
-export function _embind_register_value_array<T>(this: InstantiatedWasi<{}>, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void {
+export function _embind_register_value_array<T>(this: InstantiatedWasm, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void {
     _embind_register_value_composite<T>(this, rawTypePtr, namePtr, constructorSignature, rawConstructor, destructorSignature, rawDestructor);
 
 }
 
 
-export function _embind_register_value_array_element<T>(this: InstantiatedWasi<{}>, rawTupleType: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void {
+export function _embind_register_value_array_element<T>(this: InstantiatedWasm, rawTupleType: number, getterReturnTypeId: number, getterSignature: number, getter: number, getterContext: number, setterArgumentTypeId: number, setterSignature: number, setter: number, setterContext: number): void {
     compositeRegistrations[rawTupleType].elements.push({
         getterContext,
         setterContext,
@@ -32,7 +26,7 @@ export function _embind_register_value_array_element<T>(this: InstantiatedWasi<{
     });
 }
 
-export function _embind_finalize_value_array<T>(this: InstantiatedWasi<{}>, rawTypePtr: number): void {
+export function _embind_finalize_value_array<T>(this: InstantiatedWasm, rawTypePtr: number): void {
     const reg = compositeRegistrations[rawTypePtr];
     delete compositeRegistrations[rawTypePtr];
 
@@ -45,7 +39,7 @@ export function _embind_finalize_value_array<T>(this: InstantiatedWasi<{}>, rawT
             typeId: rawTypePtr,
             fromWireType: (ptr) => {
                 let elementDestructors: Array<() => void> = []
-                const ret: (any[] & Disposable) = [] as any;
+                const ret: (any[]) = [] as any;
 
                 for (let i = 0; i < reg.elements.length; ++i) {
                     const field = fieldRecords[i];
@@ -53,17 +47,20 @@ export function _embind_finalize_value_array<T>(this: InstantiatedWasi<{}>, rawT
                     elementDestructors.push(() => stackDestructor?.(jsValue, wireValue));
                     ret[i] = jsValue;
                 }
-                ret[Symbol.dispose] = () => {
+                /*ret[Symbol.dispose] = () => {
                     runDestructors(elementDestructors);
                     reg._destructor(ptr)
-                }
+                }*/
 
                 Object.freeze(ret);
 
                 return {
                     jsValue: ret,
                     wireValue: ptr,
-                    stackDestructor: () => ret[Symbol.dispose]()
+                    stackDestructor: () => {
+                        runDestructors(elementDestructors);
+                        reg._destructor(ptr);
+                    }
                 };
             },
             toWireType: (o) => {

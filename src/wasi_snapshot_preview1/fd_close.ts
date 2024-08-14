@@ -1,5 +1,5 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 export interface FileDescriptorCloseEventDetail {
     /**
@@ -18,9 +18,9 @@ export class FileDescriptorCloseEvent extends CustomEvent<FileDescriptorCloseEve
 }
 
 /** POSIX close */
-export function fd_close(this: InstantiatedWasi<{}>, fd: FileDescriptor): void {
+export function fd_close(this: InstantiatedWasm, fd: FileDescriptor): void {
     const event = new FileDescriptorCloseEvent(fd);
     if (this.dispatchEvent(event)) {
-        
+
     }
 }

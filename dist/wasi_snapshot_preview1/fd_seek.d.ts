@@ -1,6 +1,6 @@
 import { EBADF, ESUCCESS } from "../errno.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor, Pointer } from "../types.js";
+import type { InstantiatedWasm } from "../wasm.js";
 export interface FileDescriptorSeekEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.
@@ -14,5 +14,5 @@ export declare class FileDescriptorSeekEvent extends CustomEvent<FileDescriptorS
     constructor(fileDescriptor: number);
 }
 /** POSIX lseek */
-export declare function fd_seek(this: InstantiatedWasi<{}>, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS;
+export declare function fd_seek(this: InstantiatedWasm, fd: FileDescriptor, offset: number, whence: number, offsetOut: Pointer<number>): typeof EBADF | typeof ESUCCESS;
 //# sourceMappingURL=fd_seek.d.ts.map

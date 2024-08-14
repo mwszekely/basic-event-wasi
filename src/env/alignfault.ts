@@ -1,4 +1,4 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 export class AlignfaultError extends Error {
     constructor() {
@@ -7,6 +7,6 @@ export class AlignfaultError extends Error {
 }
 
 // Used by SAFE_HEAP
-export function alignfault(this: InstantiatedWasi<{}>): never {
+export function alignfault(this: InstantiatedWasm): never {
     throw new AlignfaultError();
 }

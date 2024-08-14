@@ -1,9 +1,9 @@
 import { finalizeType } from "../_private/embind/finalize.js";
 import { _embind_register } from "../_private/embind/register.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 
-export function _embind_register_bigint(this: InstantiatedWasi<{}>, rawTypePtr: number, namePtr: number, size: number, minRange: bigint, maxRange: bigint): void {
+export function _embind_register_bigint(this: InstantiatedWasm, rawTypePtr: number, namePtr: number, size: number, minRange: bigint, maxRange: bigint): void {
     _embind_register(this, namePtr, async (name) => {
 
         const isUnsigned = (minRange === 0n);

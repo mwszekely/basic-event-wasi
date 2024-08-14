@@ -23,8 +23,6 @@ import { emscripten_notify_memory_growth } from "../../dist/env/emscripten_notif
 import { segfault } from "../../dist/env/segfault.js";
 import { __throw_exception_with_stack_trace } from "../../dist/env/throw_exception_with_stack_trace.js";
 import { _tzset_js } from "../../dist/env/tzset_js.js";
-import { instantiate as i } from "../../dist/instantiate.js";
-import type { InstantiatedWasi } from "../../dist/instantiated-wasi.js";
 import { clock_time_get } from "../../dist/wasi_snapshot_preview1/clock_time_get.js";
 import { environ_get } from "../../dist/wasi_snapshot_preview1/environ_get.js";
 import { environ_sizes_get } from "../../dist/wasi_snapshot_preview1/environ_sizes_get.js";
@@ -33,19 +31,74 @@ import { fd_read } from "../../dist/wasi_snapshot_preview1/fd_read.js";
 import { fd_seek } from "../../dist/wasi_snapshot_preview1/fd_seek.js";
 import { fd_write } from "../../dist/wasi_snapshot_preview1/fd_write.js";
 import { proc_exit } from "../../dist/wasi_snapshot_preview1/proc_exit.js";
+import { InstantiatedWasm } from "../../dist/wasm.js";
 
 
+export interface StructTest {
+    string: string;
+    number: number;
+    triple: [number, number, number];
+}
 
-export interface KnownInstanceExports {
+export declare class TestClass implements Disposable {
+    public x: number;
+    public y: string;
+    constructor(x: number, y: string);
+    incrementX(): TestClass;
+
+    getX(): number;
+    setX(x: number): void;
+
+    static getStringFromInstance(instance: TestClass): string;
+
+    static create(): TestClass;
+
+    static identityConstPointer(input: TestClass): TestClass;
+    static identityPointer(input: TestClass): TestClass;
+    static identityReference(input: TestClass): TestClass;
+    static identityConstReference(input: TestClass): TestClass;
+    static identityCopy(input: TestClass): TestClass;
+
+    [Symbol.dispose](): void;
+}
+
+export interface EmboundTypes {
+
+    identity_u8(n: number): number;
+    identity_i8(n: number): number;
+    identity_u16(n: number): number;
+    identity_i16(n: number): number;
+    identity_u32(n: number): number;
+    identity_i32(n: number): number;
+    identity_u64(n: bigint): bigint;
+    identity_i64(n: bigint): bigint;
+    identity_string(n: string): string;
+    identity_wstring(n: string): string;
+    identity_old_enum(n: any): string;
+    identity_new_enum(n: any): string;
+    identity_struct_pointer(n: StructTest): StructTest;
+    struct_create(): StructTest;
+    struct_consume(n: StructTest): void;
+    identity_struct_copy(n: StructTest): StructTest;
+    testClassArray(): number;
+    nowSteady(): number;
+    nowSystem(): number;
+    throwsException(): never;
+    catchesException(): never;
+
+    TestClass: typeof TestClass;
+}
+
+interface KnownInstanceExports {
     printTest(): number;
     reverseInput(): number;
     getRandomNumber(): number;
     getKey(): number;
 }
 
-export async function instantiate(where: string, uninstantiated?: ArrayBuffer): Promise<InstantiatedWasi<KnownInstanceExports>> {
+export async function instantiate(where: string, uninstantiated?: ArrayBuffer): Promise<InstantiatedWasm<KnownInstanceExports, EmboundTypes>> {
 
-    let wasm = await i<KnownInstanceExports>(uninstantiated ?? fetch(new URL("wasm.wasm", import.meta.url)), {
+    let wasm = await InstantiatedWasm.instantiate<KnownInstanceExports, EmboundTypes>(uninstantiated ?? fetch(new URL("wasm.wasm", import.meta.url)), {
         env: {
             __throw_exception_with_stack_trace,
             emscripten_notify_memory_growth,

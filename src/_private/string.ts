@@ -1,13 +1,13 @@
-import { InstantiatedWasi } from "../instantiated-wasi.js";
 import { readUint16 } from "../util/read-uint16.js";
 import { readUint32 } from "../util/read-uint32.js";
 import { readUint8 } from "../util/read-uint8.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 /**
  * TODO: Can't C++ identifiers include non-ASCII characters? 
  * Why do all the type decoding functions use this?
  */
-export function readLatin1String(impl: InstantiatedWasi<{}>, ptr: number): string {
+export function readLatin1String(impl: InstantiatedWasm, ptr: number): string {
     let ret = "";
     let nextByte: number
     while (nextByte = readUint8(impl, ptr++)) {
@@ -28,7 +28,7 @@ let utf8Encoder = new TextEncoder();
  * @param ptr 
  * @returns 
  */
-export function utf8ToStringZ(impl: InstantiatedWasi<{}>, ptr: number): string {
+export function utf8ToStringZ(impl: InstantiatedWasm, ptr: number): string {
     const start = ptr;
     let end = start;
 
@@ -37,30 +37,30 @@ export function utf8ToStringZ(impl: InstantiatedWasi<{}>, ptr: number): string {
     return utf8ToStringL(impl, start, end - start - 1);
 }
 
-export function utf16ToStringZ(impl: InstantiatedWasi<{}>, ptr: number): string {
+export function utf16ToStringZ(impl: InstantiatedWasm, ptr: number): string {
     const start = ptr;
     let end = start;
 
-    while (readUint16(impl, end) != 0) { end += 2;}
+    while (readUint16(impl, end) != 0) { end += 2; }
 
     return utf16ToStringL(impl, start, end - start - 1);
 }
-export function utf32ToStringZ(impl: InstantiatedWasi<{}>, ptr: number): string {
+export function utf32ToStringZ(impl: InstantiatedWasm, ptr: number): string {
     const start = ptr;
     let end = start;
 
-    while (readUint32(impl, end) != 0) { end += 4;}
+    while (readUint32(impl, end) != 0) { end += 4; }
 
     return utf32ToStringL(impl, start, end - start - 1);
 }
 
-export function utf8ToStringL(impl: InstantiatedWasi<{}>, ptr: number, byteCount: number): string {
+export function utf8ToStringL(impl: InstantiatedWasm, ptr: number, byteCount: number): string {
     return utf8Decoder.decode(new Uint8Array(impl.exports.memory.buffer, ptr, byteCount));
 }
-export function utf16ToStringL(impl: InstantiatedWasi<{}>, ptr: number, wcharCount: number): string {
+export function utf16ToStringL(impl: InstantiatedWasm, ptr: number, wcharCount: number): string {
     return utf16Decoder.decode(new Uint8Array(impl.exports.memory.buffer, ptr, wcharCount * 2));
 }
-export function utf32ToStringL(impl: InstantiatedWasi<{}>, ptr: number, wcharCount: number): string {
+export function utf32ToStringL(impl: InstantiatedWasm, ptr: number, wcharCount: number): string {
     const chars = (new Uint32Array(impl.exports.memory.buffer, ptr, wcharCount));
     let ret = "";
     for (let ch of chars) {

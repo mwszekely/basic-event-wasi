@@ -4,7 +4,7 @@ import "./worklet-polyfill.js";
 
 
 import * as Comlink from "comlink";
-import { InstantiatedWasi } from "../../dist/instantiated-wasi.js";
+import { InstantiatedWasm } from "../../dist/instantiated-wasi.js";
 import { instantiate, KnownInstanceExports } from "./instantiate.js";
 
 
@@ -16,7 +16,7 @@ let { promise: uninstantiatedWasm, resolve: resolveUninstantiatedWasm } = Promis
 
 
 
-let wasm: InstantiatedWasi<KnownInstanceExports> = null!;
+let wasm: InstantiatedWasm<KnownInstanceExports> = null!;
 
 uninstantiatedWasm.then(binary => instantiate("Worklet", binary).then(w => wasm = w));
 

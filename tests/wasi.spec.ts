@@ -5,7 +5,7 @@ import { test } from "./fixture.js";
 
 test('stdout (printf, etc)', async ({ page, wasm }) => {
   const msgPromise = page.waitForEvent('console');
-  await page.evaluate(() => (globalThis as any)._wasm.exports.printTest());
+  await page.evaluate(() => _wasm.exports.printTest());
 
   const msg = await (await msgPromise).args()[0].jsonValue();
 
@@ -18,7 +18,7 @@ test('stdout (printf, etc)', async ({ page, wasm }) => {
 test('clock_time_get<system>', async ({ page, wasm }) => {
   for (let i = 0; i < 10; ++i) {
     const [nowJs, nowC] = JSON.parse(await page.evaluate(() => {
-      return JSON.stringify([Number(Date.now()), Number((globalThis as any)._wasm.embind.nowSystem())]);
+      return JSON.stringify([Number(Date.now()), Number(_wasm.embind.nowSystem())]);
     }));
 
     const msDiff = Math.abs(nowJs - nowC);
@@ -31,7 +31,7 @@ test('clock_time_get<system>', async ({ page, wasm }) => {
 test('clock_time_get<steady>', async ({ page, wasm }) => {
   for (let i = 0; i < 10; ++i) {
     const [nowJs, nowC] = JSON.parse(await page.evaluate(() => {
-      return JSON.stringify([Number(performance.now()), Number((globalThis as any)._wasm.embind.nowSteady())]);
+      return JSON.stringify([Number(performance.now()), Number(_wasm.embind.nowSteady())]);
     }));
 
     const msDiff = Math.abs(nowJs - nowC);

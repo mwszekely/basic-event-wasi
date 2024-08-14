@@ -1,4 +1,4 @@
-import { InstantiatedWasi } from "../../instantiated-wasi.js";
+import { InstantiatedWasm } from "../../wasm.js";
 import { readLatin1String } from "../string.js";
 
 /**
@@ -6,14 +6,14 @@ import { readLatin1String } from "../string.js";
  * 
  * Also, because every single registration comes with a name that needs to be parsed, this also parses that name for you.
  */
-export function _embind_register(impl: InstantiatedWasi<{}>, namePtr: number, func: (name: string) => (void | Promise<void>)): void {
+export function _embind_register(impl: InstantiatedWasm, namePtr: number, func: (name: string) => (void | Promise<void>)): void {
     _embind_register_known_name(impl, readLatin1String(impl, namePtr), func);
 }
 
 /** 
  * Same as `_embind_register`, but for known (or synthetic) names.
  */
-export function _embind_register_known_name(impl: InstantiatedWasi<{}>, name: string, func: (name: string) => (void | Promise<void>)): void {
+export function _embind_register_known_name(impl: InstantiatedWasm, name: string, func: (name: string) => (void | Promise<void>)): void {
 
     const promise: Promise<void> = (async () => {
         let handle = 0;

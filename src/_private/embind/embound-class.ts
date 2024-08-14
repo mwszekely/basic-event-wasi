@@ -65,7 +65,7 @@ export class EmboundClass {
              *
              * (In other words, this part runs first, then the `else` below runs)
              */
-            return (this.constructor as typeof EmboundClass)._constructor(...args);
+            return new.target._constructor(...args);
         }
         else {
             /**
@@ -93,7 +93,7 @@ export class EmboundClass {
             registry.register(this, _this);
 
             if (args[0] != SecretNoDispose) {
-                const destructor = (this.constructor as typeof EmboundClass)._destructor;
+                const destructor = new.target._destructor;
 
                 destructorsYetToBeCalled.set(_this, () => {
                     destructor(_this);

@@ -1,17 +1,17 @@
-import type { InstantiatedWasi } from "../../instantiated-wasi.js";
 import { readSizeT } from "../../util/read-sizet.js";
 import { getSizeTSize } from "../../util/sizet.js";
 import { writeSizeT } from "../../util/write-sizet.js";
 import { writeUint16 } from "../../util/write-uint16.js";
 import { writeUint32 } from "../../util/write-uint32.js";
 import { writeUint8 } from "../../util/write-uint8.js";
+import type { InstantiatedWasm } from "../../wasm.js";
 import { stringToUtf16, stringToUtf32, stringToUtf8, utf16ToStringL, utf32ToStringL, utf8ToStringL } from "../string.js";
 import { finalizeType } from "./finalize.js";
 import { _embind_register } from "./register.js";
-import { WireConversionResult } from "./types.js";
+import type { WireConversionResult } from "./types.js";
 
 // Shared between std::string and std::wstring
-export function _embind_register_std_string_any(impl: InstantiatedWasi<{}>, typePtr: number, charWidth: 1 | 2 | 4, namePtr: number): void {
+export function _embind_register_std_string_any(impl: InstantiatedWasm, typePtr: number, charWidth: 1 | 2 | 4, namePtr: number): void {
 
     const utfToStringL = (charWidth == 1) ? utf8ToStringL : (charWidth == 2) ? utf16ToStringL : utf32ToStringL;
     const stringToUtf = (charWidth == 1) ? stringToUtf8 : (charWidth == 2) ? stringToUtf16 : stringToUtf32;

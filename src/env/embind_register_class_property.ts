@@ -1,11 +1,11 @@
 import { createGlueFunction } from "../_private/embind/create-glue-function.js";
 import { EmboundClasses } from "../_private/embind/embound-class.js";
 import { _embind_register } from "../_private/embind/register.js";
-import { InstantiatedWasi } from "../instantiated-wasi.js";
+import { InstantiatedWasm } from "../wasm.js";
 
 
 export function _embind_register_class_property(
-    this: InstantiatedWasi<{}>,
+    this: InstantiatedWasm,
     rawClassTypeId: number,
     fieldNamePtr: number,
     getterReturnTypeId: number,

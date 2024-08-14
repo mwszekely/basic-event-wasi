@@ -1,6 +1,6 @@
 import { type Iovec } from "../_private/iovec.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
+import type { InstantiatedWasm } from "../wasm.js";
 export interface FileDescriptorReadEventDetail {
     /**
      * The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor), a 0-indexed number describing where the data is going to/coming from.
@@ -14,12 +14,12 @@ export interface FileDescriptorReadEventDetail {
 }
 export declare class FileDescriptorReadEvent extends CustomEvent<FileDescriptorReadEventDetail> {
     private _bytesWritten;
-    constructor(impl: InstantiatedWasi<{}>, fileDescriptor: number, requestedBufferInfo: Iovec[]);
+    constructor(impl: InstantiatedWasm, fileDescriptor: number, requestedBufferInfo: Iovec[]);
     bytesWritten(): number;
 }
 export declare class UnhandledFileReadEvent extends Error {
     constructor(fd: number);
 }
 /** POSIX readv */
-export declare function fd_read(this: InstantiatedWasi<{}>, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): number;
+export declare function fd_read(this: InstantiatedWasm, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): number;
 //# sourceMappingURL=fd_read.d.ts.map

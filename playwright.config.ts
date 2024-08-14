@@ -57,7 +57,7 @@ export default defineConfig({
       name: 'Microsoft Edge',
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
-    { name: 'Google Chrome', use: { ...devices['Desktop Chrome']}, }
+    { name: 'Google Chrome', use: { ...devices['Desktop Chrome'] }, }
 
     /* Test against mobile viewports. */
     // {

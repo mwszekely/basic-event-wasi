@@ -1,7 +1,7 @@
-import { InstantiatedWasi } from "../../instantiated-wasi.js";
+import { InstantiatedWasm } from "../../wasm.js";
 import { getTableFunction } from "./get-table-function.js";
 import { getTypeInfo } from "./get-type-info.js";
-import { EmboundRegisteredType, WireConversionResult, WireTypes } from "./types.js";
+import type { EmboundRegisteredType, WireConversionResult, WireTypes } from "./types.js";
 
 export type CompositeElementRegistrationGetter<WT> = (getterContext: number, ptr: number) => WT;
 export type CompositeElementRegistrationSetter<WT> = (setterContext: number, ptr: number, wireType: WT) => void;
@@ -54,7 +54,7 @@ export const compositeRegistrations: Record<number, CompositeRegistrationInfo> =
 
 
 
-export function _embind_register_value_composite<T>(impl: InstantiatedWasi<{}>, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void {
+export function _embind_register_value_composite<T>(impl: InstantiatedWasm, rawTypePtr: number, namePtr: number, constructorSignature: number, rawConstructor: number, destructorSignature: number, rawDestructor: number): void {
     compositeRegistrations[rawTypePtr] = {
         namePtr,
         _constructor: getTableFunction(impl, constructorSignature, rawConstructor),
@@ -83,7 +83,7 @@ export async function _embind_finalize_composite_elements<I extends CompositeEle
             const ret = setterArgumentType.toWireType(o);
             field.wasmSetter(field.setterContext, ptr, ret.wireValue);
             return ret;
-            
+
         }
         return {
             getterReturnType,

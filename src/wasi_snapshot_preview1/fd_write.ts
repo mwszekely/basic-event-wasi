@@ -1,8 +1,8 @@
 import { parseArray } from "../_private/iovec.js";
 import { EBADF, ESUCCESS } from "../errno.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
 import { writeUint32 } from "../util/write-uint32.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 export interface FileDescriptorWriteEventDetail {
     /**
@@ -37,7 +37,7 @@ export class UnhandledFileWriteEvent extends Error {
 
 
 /** POSIX writev */
-export function fd_write(this: InstantiatedWasi<{}>, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): typeof ESUCCESS | typeof EBADF {
+export function fd_write(this: InstantiatedWasm, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number): typeof ESUCCESS | typeof EBADF {
 
     let nWritten = 0;
     const gen = parseArray(this, iov, iovcnt);

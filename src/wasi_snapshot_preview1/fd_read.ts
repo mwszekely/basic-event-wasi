@@ -1,8 +1,8 @@
 import { type Iovec, parseArray } from "../_private/iovec.js";
-import type { InstantiatedWasi } from "../instantiated-wasi.js";
 import type { FileDescriptor } from "../types.js";
 import { writeUint32 } from "../util/write-uint32.js";
 import { writeUint8 } from "../util/write-uint8.js";
+import type { InstantiatedWasm } from "../wasm.js";
 
 export interface FileDescriptorReadEventDetail {
     /**
@@ -21,7 +21,7 @@ export interface FileDescriptorReadEventDetail {
 export class FileDescriptorReadEvent extends CustomEvent<FileDescriptorReadEventDetail> {
     private _bytesWritten = 0;
 
-    constructor(impl: InstantiatedWasi<{}>, fileDescriptor: number, requestedBufferInfo: Iovec[]) {
+    constructor(impl: InstantiatedWasm, fileDescriptor: number, requestedBufferInfo: Iovec[]) {
         super("fd_read", {
             bubbles: false,
             cancelable: true,
@@ -56,7 +56,7 @@ export class UnhandledFileReadEvent extends Error {
 
 
 /** POSIX readv */
-export function fd_read(this: InstantiatedWasi<{}>, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number) {
+export function fd_read(this: InstantiatedWasm, fd: FileDescriptor, iov: number, iovcnt: number, pnum: number) {
 
     let nWritten = 0;
     const gen = parseArray(this, iov, iovcnt);

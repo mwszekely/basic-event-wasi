@@ -2,7 +2,7 @@ import type { __throw_exception_with_stack_trace, _embind_finalize_value_array, 
 /** @alias fd */
 export type FileDescriptor = number;
 export type Pointer<_T> = number;
-export interface KnownInstanceExports2 {
+export interface KnownExports {
     free(ptr: number): void;
     malloc(size: number): number;
     realloc(ptr: number, size: number): number;
@@ -24,10 +24,10 @@ export interface KnownInstanceExports2 {
 export interface PrivateImpl {
     //instance: WebAssembly.Instance;
     //module: WebAssembly.Module;
-    source: InstantiatedWasi;
+    source: InstantiatedWasm;
 
 } */
-export interface EntirePublicWasiInterface {
+export interface KnownImportsWasi {
     proc_exit: typeof proc_exit;
     fd_write: typeof fd_write;
     fd_close: typeof fd_close;
@@ -37,7 +37,7 @@ export interface EntirePublicWasiInterface {
     environ_get: typeof environ_get;
     environ_sizes_get: typeof environ_sizes_get;
 }
-export interface EntirePublicEnvInterface {
+export interface KnownImportsEnv {
     __throw_exception_with_stack_trace: typeof __throw_exception_with_stack_trace;
     emscripten_notify_memory_growth: typeof emscripten_notify_memory_growth;
     _embind_register_void: typeof _embind_register_void;
@@ -71,8 +71,8 @@ export interface EntirePublicEnvInterface {
     segfault: typeof segfault;
     alignfault: typeof alignfault;
 }
-export interface EntirePublicInterface {
-    wasi_snapshot_preview1: Partial<EntirePublicWasiInterface>;
-    env: Partial<EntirePublicEnvInterface>;
+export interface KnownImports {
+    wasi_snapshot_preview1: Partial<KnownImportsWasi>;
+    env: Partial<KnownImportsEnv>;
 }
 //# sourceMappingURL=types.d.ts.map
