@@ -3,13 +3,18 @@ import type { FileDescriptorCloseEvent } from "../wasi_snapshot_preview1/fd_clos
 import type { FileDescriptorReadEvent } from "../wasi_snapshot_preview1/fd_read.js";
 import type { FileDescriptorSeekEvent } from "../wasi_snapshot_preview1/fd_seek.js";
 import type { FileDescriptorWriteEvent } from "../wasi_snapshot_preview1/fd_write.js";
-import type { AbortEvent } from "../wasi_snapshot_preview1/proc_exit.js";
-export interface EventTypesMap {
-    MemoryGrowthEvent: MemoryGrowthEvent;
-    proc_exit: AbortEvent;
-    fd_read: FileDescriptorReadEvent;
-    fd_write: FileDescriptorWriteEvent;
-    fd_seek: FileDescriptorSeekEvent;
-    fd_close: FileDescriptorCloseEvent;
+import type { ProcExitEvent } from "../wasi_snapshot_preview1/proc_exit.js";
+import type { EnvironGetEvent } from "./environ.js";
+export interface EventTypesMapClasses {
+    MemoryGrowthEvent: typeof MemoryGrowthEvent;
+    proc_exit: typeof ProcExitEvent;
+    fd_read: typeof FileDescriptorReadEvent;
+    fd_write: typeof FileDescriptorWriteEvent;
+    fd_seek: typeof FileDescriptorSeekEvent;
+    fd_close: typeof FileDescriptorCloseEvent;
+    environ_get: typeof EnvironGetEvent;
 }
+export type EventTypesMap = {
+    [K in keyof EventTypesMapClasses]: InstanceType<EventTypesMapClasses[K]>;
+};
 //# sourceMappingURL=event-types-map.d.ts.map

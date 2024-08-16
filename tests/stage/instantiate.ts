@@ -85,11 +85,14 @@ export interface EmboundTypes {
     nowSystem(): number;
     throwsException(): never;
     catchesException(): never;
+    getenv(key: string): string;
+    identity_stdout(): void;
+    return_stdin(): string;
 
     TestClass: typeof TestClass;
 }
 
-interface KnownInstanceExports {
+export interface KnownInstanceExports {
     printTest(): number;
     reverseInput(): number;
     getRandomNumber(): number;
@@ -98,7 +101,26 @@ interface KnownInstanceExports {
 
 export async function instantiate(where: string, uninstantiated?: ArrayBuffer): Promise<InstantiatedWasm<KnownInstanceExports, EmboundTypes>> {
 
-    let wasm = await InstantiatedWasm.instantiate<KnownInstanceExports, EmboundTypes>(uninstantiated ?? fetch(new URL("wasm.wasm", import.meta.url)), {
+    let wasm = new InstantiatedWasm<KnownInstanceExports, EmboundTypes>();
+    wasm.addEventListener("environ_get", e => {
+        e.detail.strings = [
+            ["key_1", "value_1"],
+            ["key_2", "value_2"],
+            ["key_3", "value_3"]
+        ]
+    });
+    /*wasm.addEventListener("fd_read", e => {
+        e.preventDefault();
+        let str = "This_is_a_test_string\n";
+        let pos = 0;
+        e.detail.write = (input) => {
+            debugger;
+            const result = (new TextEncoder).encodeInto(str.substring(pos), input);
+            pos += result.read;
+            return result.written;
+        }
+    });*/
+    await wasm.instantiate(uninstantiated ?? fetch(new URL("wasm.wasm", import.meta.url)), {
         env: {
             __throw_exception_with_stack_trace,
             emscripten_notify_memory_growth,
@@ -148,7 +170,7 @@ export async function instantiate(where: string, uninstantiated?: ArrayBuffer): 
     wasm.addEventListener("fd_write", e => {
         if (e.detail.fileDescriptor == 1) {
             e.preventDefault();
-            const value = e.asString("utf-8");
+            const value = e.detail.asString("utf-8");
             console.log(`${where}: ${value}`);
         }
     });

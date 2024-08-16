@@ -20,7 +20,7 @@ let wasm: InstantiatedWasm<KnownInstanceExports> = null!;
 
 uninstantiatedWasm.then(binary => instantiate("Worklet", binary).then(w => wasm = w));
 
-class RandomNoiseProcessor extends AudioWorkletProcessor {
+registerProcessor("random-noise-processor", class RandomNoiseProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
         Comlink.expose({
@@ -31,7 +31,6 @@ class RandomNoiseProcessor extends AudioWorkletProcessor {
                 return (new Function("wasm", str))(wasm);
             }
         }, this.port);
-
     }
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>) {
         if (wasm) {
@@ -43,10 +42,7 @@ class RandomNoiseProcessor extends AudioWorkletProcessor {
         }
         return true;
     }
-}
-
-
-registerProcessor("random-noise-processor", RandomNoiseProcessor);
+});
 
 
 

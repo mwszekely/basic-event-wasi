@@ -97,6 +97,7 @@
         "xtree": "cpp",
         "__tree": "cpp",
         "future": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "set": "cpp"
     }
 }

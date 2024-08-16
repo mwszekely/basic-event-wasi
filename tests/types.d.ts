@@ -1,14 +1,8 @@
-import type { EmboundTypes } from "./stage/instantiate.ts";
+import { InstantiatedWasm } from "../dist/index.js";
+import type { EmboundTypes, KnownInstanceExports } from "./stage/instantiate.ts";
 
 declare global {
-    const _wasm: {
-        exports: {
-            malloc(size: number): number;
-            free(ptr: number): void;
-
-        }
-        embind: EmboundTypes
-    };
+    const _wasm: InstantiatedWasm<KnownInstanceExports, EmboundTypes>;
     const _memoryGrowth: number;
     const output: HTMLElement;
 }

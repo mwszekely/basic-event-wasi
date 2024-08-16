@@ -15,7 +15,7 @@ export function _embind_register_enum(this: InstantiatedWasm, typePtr: number, n
         // themselves aren't used by any registration functions.)
         finalizeType<number, number>(this, name, {
             typeId: typePtr,
-            fromWireType: (wireValue) => { return {wireValue, jsValue: wireValue}; },
+            fromWireType: (wireValue) => { return { wireValue, jsValue: wireValue }; },
             toWireType: (jsValue) => { return { wireValue: jsValue, jsValue } }
         });
 

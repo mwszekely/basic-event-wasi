@@ -177,6 +177,24 @@ void catchesException()
 
 std::int64_t nowSteady() { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
 std::int64_t nowSystem() { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
+void identityStdout()
+{
+    std::string input = "";
+    std::cin >> input;
+    std::cout << input << std::endl;
+}
+
+std::string returnStdin()
+{
+    std::string input = "";
+    std::cin >> input;
+    return input;
+}
+
+std::string getenv2(std::string key)
+{
+    return std::string{std::getenv(key.c_str())};
+}
 
 EMSCRIPTEN_BINDINGS(constants)
 {
@@ -237,6 +255,8 @@ EMSCRIPTEN_BINDINGS(constants)
     emscripten::function("identity_wstring", &identity_wstring);
     emscripten::function("identity_old_enum", &identity_old_enum);
     emscripten::function("identity_new_enum", &identity_new_enum);
+    emscripten::function("identity_stdout", &identityStdout);
+    emscripten::function("return_stdin", &returnStdin);
     // emscripten::function("identity_struct_pointer", &identity_struct_pointer, emscripten::allow_raw_pointers());
     emscripten::function("struct_create", &struct_create);
     emscripten::function("struct_consume", &struct_consume);
@@ -248,6 +268,7 @@ EMSCRIPTEN_BINDINGS(constants)
     emscripten::function("nowSystem", &nowSystem);
     emscripten::function("throwsException", &throwsException);
     emscripten::function("catchesException", &catchesException);
+    emscripten::function("getenv", &getenv2);
     emscripten::function("testClassArray", reinterpret_cast<std::uintptr_t (*)()>(&testClassArray));
     emscripten::class_<TestClassBase>("TestClassBase")
         .constructor<int>();

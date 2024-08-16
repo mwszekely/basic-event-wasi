@@ -44,8 +44,6 @@ import type {
 /** @alias fd */
 export type FileDescriptor = number;
 
-export type Pointer<_T> = number;
-
 export interface KnownExports {
     free(ptr: number): void;
     malloc(size: number): number;

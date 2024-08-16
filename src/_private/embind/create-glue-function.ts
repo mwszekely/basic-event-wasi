@@ -46,6 +46,8 @@ export async function createGlueFunction<F extends ((...args: unknown[]) => unkn
             wiredArgs.push(wiredThis);
 
         // Convert each JS argument to its WASM equivalent (generally a pointer, or int/float)
+        // TODO: Test performance regarding looping through each argument before passing it to a function.
+        // I'm hoping that the JIT compiler understands that argTypes.length never changes and unrolls it...
         for (let i = 0; i < argTypes.length; ++i) {
             const type = argTypes[i];
             const arg = jsArgs[i];

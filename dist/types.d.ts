@@ -1,7 +1,6 @@
 import type { __throw_exception_with_stack_trace, _embind_finalize_value_array, _embind_finalize_value_object, _embind_register_bigint, _embind_register_bool, _embind_register_class, _embind_register_class_class_function, _embind_register_class_constructor, _embind_register_class_function, _embind_register_class_property, _embind_register_constant, _embind_register_emval, _embind_register_enum, _embind_register_enum_value, _embind_register_float, _embind_register_function, _embind_register_integer, _embind_register_memory_view, _embind_register_std_string, _embind_register_std_wstring, _embind_register_user_type, _embind_register_value_array, _embind_register_value_array_element, _embind_register_value_object, _embind_register_value_object_field, _embind_register_void, _emval_decref, _emval_take_value, _tzset_js, alignfault, clock_time_get, emscripten_notify_memory_growth, environ_get, environ_sizes_get, fd_close, fd_read, fd_seek, fd_write, proc_exit, segfault } from "./index.js";
 /** @alias fd */
 export type FileDescriptor = number;
-export type Pointer<_T> = number;
 export interface KnownExports {
     free(ptr: number): void;
     malloc(size: number): number;

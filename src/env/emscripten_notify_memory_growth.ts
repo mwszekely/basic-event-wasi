@@ -1,6 +1,8 @@
 import type { InstantiatedWasm } from "../wasm.js";
 
-export interface MemoryGrowthEventDetail { index: number }
+export interface MemoryGrowthEventDetail {
+    readonly index: number;
+}
 
 export class MemoryGrowthEvent extends CustomEvent<MemoryGrowthEventDetail> {
     constructor(_impl: InstantiatedWasm, index: number) {

@@ -1,4 +1,3 @@
-import { type Pointer } from "./types.js";
 import { InstantiatedWasm } from "./wasm.js";
 
 type AllTypedArrays = Uint8Array | Int8Array | Uint8ClampedArray | Uint16Array | Int16Array | Uint32Array | Int32Array | BigInt64Array | BigUint64Array;
@@ -20,7 +19,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
     protected _impl!: T;
 
     private _currentCount: number;
-    private _ptr: Pointer<unknown> | null = null;
+    private _ptr: number | null = null;
     private _malloc: ((size: number) => number) | null;
     private _realloc: ((ptr: number, size: number) => number) | null;
     private _free: ((ptr: number) => void) | null;
@@ -83,7 +82,7 @@ abstract class NativeTypedArray<T extends AllTypedArrays> {
      */
     get address(): number | null { return this._ptr }
 
-    protected constructor(private TypedArray: new(buffer: ArrayBufferLike, byteOffset?: number, length?: number) => T, protected _instance: InstantiatedWasm, protected _bytesPerWord: number, initialCount?: number | null) {
+    protected constructor(private TypedArray: new (buffer: ArrayBufferLike, byteOffset?: number, length?: number) => T, protected _instance: InstantiatedWasm, protected _bytesPerWord: number, initialCount?: number | null) {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         const { malloc, realloc, free } = _instance.exports;
         this._malloc = malloc;

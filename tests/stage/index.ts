@@ -23,6 +23,26 @@ const worker = wrap<{ execute(func: string): unknown }>(w);
 document.getElementById("ready-worker")!.innerHTML = "✔️";
 (globalThis as any)._worker = worker;
 (globalThis as any)._wasm = wasm;
+/*
+_wasm.addEventListener("fd_read", e => {
+    e.preventDefault();
+    e.detail.data.push(VeryLongString, VeryLongString, VeryLongString, "\n");
+});
+console.log(_wasm.embind.return_stdin());
+debugger;
+console.log(_wasm.embind.return_stdin());
+console.log(_wasm.embind.return_stdin());*/
+
+/*_wasm.addEventListener("fd_read", e => {
+    e.preventDefault();
+    if (!e.detail.eof && e.detail.data.length == 0) {
+      e.detail.data.push(VeryLongString);
+    }
+  })
+  console.log( _wasm.embind.return_stdin());
+  console.log( _wasm.embind.return_stdin());
+  console.log( _wasm.embind.return_stdin());*/
+//wasm.embind.identity_stdout();
 /*wasm.addEventListener("WebAssemblyExceptionEvent", (event) => {debugger; event.preventDefault(); throw new (WebAssembly as any).Exception("Hi")});
 try {
 wasm.embind.throwsException();
@@ -31,7 +51,6 @@ catch (ex) {
     console.error(ex);
 }*/
 const cls = new wasm.embind.TestClass(5, "test");
-debugger;
 cls.x = 10;
 cls.getX();
 cls[Symbol.dispose]();

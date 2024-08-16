@@ -50,11 +50,13 @@ export class InstantiatedWasm<Exports extends object = object, Embind extends ob
     public cachedMemoryView: DataView;
 
     /** 
-     * Not intended to be called directly. Use the static `instantiate` function instead, which returns one of these.
+     * **IMPORTANT**: Until `initialize` is called, no WASM-related methods/fields can be used. 
      * 
-     * I want to instead just return a promise here sooooooo badly...
+     * `addEventListener` and other `EventTarget` methods are fine, though, and in fact are required for events that occur during `_initialize` or `_start`.
+     * 
+     * If you don't care about events during initialization, you can also just call `InstantiatedWasm.instantiate`, which is an async function that does both in one step.
      */
-    private constructor() {
+    constructor() {
         super();
         this.module = this.instance = this.exports = this.cachedMemoryView = null!
         this.embind = {} as never;
@@ -73,7 +75,7 @@ export class InstantiatedWasm<Exports extends object = object, Embind extends ob
      * @param wasmFetchPromise 
      * @param unboundImports 
      */
-    static async instantiate<Exports extends object, Embind extends object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<InstantiatedWasm<Exports, Embind>> {
+    async instantiate(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<void> {
         // (These are just up here to not get in the way of the comments)
         let module: WebAssembly.Module;
         let instance: WebAssembly.Instance;
@@ -86,10 +88,9 @@ export class InstantiatedWasm<Exports extends object = object, Embind extends ob
         // First, bind all of our imports to the same object, 
         // which also happens to be the InstantiatedWasm we're returning (but could theoretically be something else).
         // This is how they'll be able to access memory and communicate with each other.
-        const wasm: InstantiatedWasm<Exports, Embind> = new InstantiatedWasm<Exports, Embind>();
         const imports = {
-            wasi_snapshot_preview1: bindAllFuncs(wasm, wasi_snapshot_preview1),
-            env: bindAllFuncs(wasm, env),
+            wasi_snapshot_preview1: bindAllFuncs(this, wasi_snapshot_preview1),
+            env: bindAllFuncs(this, env),
             ...unboundImports
         } as KnownImports & WebAssembly.Imports;
 
@@ -109,20 +110,25 @@ export class InstantiatedWasm<Exports extends object = object, Embind extends ob
 
 
         // Do the stuff we couldn't do in the `InstantiatedWasm` constructor because we didn't have these then:
-        wasm.instance = instance;
-        wasm.module = module;
-        wasm.exports = wasm.instance.exports as Exports as Exports & KnownExports;
-        wasm.cachedMemoryView = new DataView(wasm.exports.memory.buffer);
+        this.instance = instance;
+        this.module = module;
+        this.exports = this.instance.exports as Exports as Exports & KnownExports;
+        this.cachedMemoryView = new DataView(this.exports.memory.buffer);
 
         // Almost done -- now run WASI's `_start` or `_initialize` function.
-        console.assert(("_initialize" in wasm.instance.exports) != ("_start" in wasm.instance.exports), `Expected either _initialize XOR _start to be exported from this WASM.`);
-        (wasm.exports._initialize ?? wasm.exports._start)?.();
+        console.assert(("_initialize" in this.instance.exports) != ("_start" in this.instance.exports), `Expected either _initialize XOR _start to be exported from this WASM.`);
+        (this.exports._initialize ?? this.exports._start)?.();
 
         // Wait for all Embind calls to resolve (they `await` each other based on the dependencies they need, and this resolves when all dependencies have too)
         await awaitAllEmbind();
+    }
 
-        // And we're finally finished.
-        return wasm;
+    static async instantiate<Exports extends object = object, Embind extends object = object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, unboundImports: KnownImports, eventListeners: Parameters<InstantiatedWasm<Exports, Embind>["addEventListener"]>[] = []): Promise<InstantiatedWasm<Exports, Embind>> {
+        const ret = new InstantiatedWasm<Exports, Embind>();
+        for (const args of eventListeners)
+            ret.addEventListener(...args);
+        await ret.instantiate(wasmDataOrFetcher, unboundImports);
+        return ret;
     }
 }
 

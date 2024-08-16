@@ -11,22 +11,31 @@ export interface FileDescriptorWriteEventDetail {
      * It's more-or-less [universally expected](https://en.wikipedia.org/wiki/Standard_stream) that 0 is for input, 1 for output, and 2 for errors,
      * so you can map 1 to `console.log` and 2 to `console.error`, with others handled with the various file-opening calls. 
      */
-    fileDescriptor: number;
-    data: Uint8Array[];
+    readonly fileDescriptor: number;
+
+    readonly data: Uint8Array[];
+
+    asString(label: string): string;
 }
 
 export class FileDescriptorWriteEvent extends CustomEvent<FileDescriptorWriteEventDetail> {
     constructor(fileDescriptor: number, data: Uint8Array[]) {
-        super("fd_write", { bubbles: false, cancelable: true, detail: { data, fileDescriptor } });
+        super("fd_write", {
+            bubbles: false, cancelable: true, detail: {
+                data,
+                fileDescriptor,
+                asString(label: string): string {
+                    return this.data.map((d, index) => {
+                        const decoded = typeof d == "string" ? d : getTextDecoder(label).decode(d);
+                        if (decoded == "\0" && index == this.data.length - 1)
+                            return "";
+                        return decoded;
+                    }).join("");
+                }
+            }
+        });
     }
-    asString(label: string): string {
-        return this.detail.data.map((d, index) => {
-            const decoded = getTextDecoder(label).decode(d);
-            if (decoded == "\0" && index == this.detail.data.length - 1)
-                return "";
-            return decoded;
-        }).join("");
-    }
+
 }
 
 export class UnhandledFileWriteEvent extends Error {
@@ -43,11 +52,14 @@ export function fd_write(this: InstantiatedWasm, fd: FileDescriptor, iov: number
     const gen = parseArray(this, iov, iovcnt);
 
     // Get all the data to write in its separate buffers
-    const asTypedArrays = [...gen].map(({ bufferStart, bufferLength }) => { nWritten += bufferLength; return new Uint8Array(this.cachedMemoryView.buffer, bufferStart, bufferLength) });
+    const asTypedArrays = gen.map(({ bufferStart, bufferLength }) => {
+        nWritten += bufferLength;
+        return new Uint8Array(this.cachedMemoryView.buffer, bufferStart, bufferLength);
+    });
 
     const event = new FileDescriptorWriteEvent(fd, asTypedArrays);
     if (this.dispatchEvent(event)) {
-        const str = event.asString("utf-8");
+        const str = event.detail.asString("utf-8");
         if (fd == 1)
             console.log(str);
         else if (fd == 2)

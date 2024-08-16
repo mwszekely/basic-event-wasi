@@ -33,41 +33,55 @@ import { InstantiatedWasm, type KnownImports } from "basic-event-wasi/wasm.js";
 // Pick and choose the WASI functions your compiled code needs
 // (There's no way to automate this--use Emscripten in full for that.
 // But the benefit is this is tree-shakeable by any bundler under the sun)
-import { fd_read } from "basic-event-wasi/wasi_snapshot_preview1/fd_read.js";
+import { emscripten_notify_memory_growth } from "basic-event-wasi/env/emscripten_notify_memory_growth/fd_read.js";
 import { fd_write } from "basic-event-wasi/wasi_snapshot_preview1/fd_write.js";
 // (...etc...)
 
+// This is our combination WASM-and-event-target
+const wasm = new InstantiatedWasm();
+
+// Add event listeners
+// (adding others can be done later, 
+// but "environ_get" is called during initialization)
+wasm.addEventListener(
+    "environ_get", 
+    e => e.detail.strings.add(["PATH", "/tmp/path"])
+);
+
+// These are all the functions that the WASM module imports.
 const imports: KnownImports = {
     wasi_snapshot_preview1: {
-        fd_close,
-        fd_read,
-        fd_seek,
         fd_write,
         environ_get,
         environ_sizes_get,
-        proc_exit,
+        // (...etc...)
     },
     env: {
-        __throw_exception_with_stack_trace,
         emscripten_notify_memory_growth,
-        _embind_register_void,
         _embind_register_bool,
         // (...etc...)
     }
 }
 
-const wasm = await InstantiatedWasm.instantiate(fetch("program.wasm"), imports);
+// Now we can actually load the WASM module:
+await wasm.instantiate(fetch("program.wasm"), imports);
 
 // `wasm` has the same interface as `WebAssembly.WebAssemblyInstantiatedSource`
 wasm.instance.exports.memory.buffer;
-wasm.module;
+
+// But also includes `EventTarget` functionality:
+wasm.addEventListener("fd_write", e => {
+    if (e.detail.fileDescriptor == 1) {
+        e.preventDefault();
+        console.log(e.asString())
+    }
+})
 
 // Additionally, `embind` contains everything that was embound: 
 wasm.embind.someMangledCPlusPlusFunction("that takes a string");
-
 ```
 
-Additionally, certain `emcc` flags either must or must not be used. This is an inexhaustive list:
+In addition to other limitations stated throughout the Readme, be aware that certain `emcc` flags either must or must not be used. This is an inexhaustive list:
 |Flag|Use|
 |----|---|
 |`-o`|Must be a `.wasm` file, not a `.js` file.|
@@ -100,9 +114,21 @@ This is effectively `WebAssembly.WebAssemblyInstantiatedSource` attached to an `
 * `exports` contains all the *raw* exports from your WASM module. The functions here won't marshall between (e.g.) strings and numbers for you; if you're using the `exports` field, it's expected you're doing that yourself.
 * `cachedMemoryView` is a `DataView` representing the current memory; it auto-refreshes if the instance's memory grows. By always referencing this property, you can ensure you have a live view of memory even after memory growth events.
 
-Being an `EventTarget`, things like `addEventListener` are there too, which you can use to listen for events to handle.
+Being an `EventTarget`, things like `addEventListener` are there too, which you can use to listen for events to handle. Note that **some events can be dispatched during initialization**, which is why event handlers can be added between construction and initialization. That being said, both of these examples are identical:
+```typescript
+const wasm = new InstantiatedWasm();
+wasm.addEventListener("fd_read", e => {...});
+await wasm.initialize(binary, imports);
+```
 
-Note that you must construct this class via the `static` method `instantiate`, as the constructor is private. It works like `WebAssembly.instantiate` or `WebAssembly.instantiateStreaming` with the arguments you give it. The first is the source, one of:
+```typescript
+const wasm = await InstantiatedWasm.initialize(
+    binary, 
+    imports, 
+    [["fd_read", e => {...}]]
+);
+```
+Both `instantiate` functions work like `WebAssembly.instantiate` or `WebAssembly.instantiateStreaming` with the arguments you give it. The first is the source, one of:
 * `Response`/`Promise<Response>`, like what you'd get from `fetch`. Uses `WebAssembly.instantiateStreaming`.
 * `ArrayBuffer` of the raw data, if you've already got it (e.g. if you've inlined some base64). Uses `WebAssembly.instantiate`.
 * `WebAssembly.Module`, if you want to create a new instance of an existing WASM instance. Uses `WebAssembly.instantiate`.
@@ -110,43 +136,32 @@ Note that you must construct this class via the `static` method `instantiate`, a
 
 For the second `imports` parameter, you'll need to provide all the WASI (and related) functions that your WASM program requires. These can be found in the `/wasi_snapshot_preview1` and `/env` directories. You can see which ones you need by analyzing your WASM binary's text representation, using a tool like [wasm2wat](https://webassembly.github.io/wabt/demo/wasm2wat/). Or trial and error. (Or just use Emscripten's full output, which does this for you, etc.)
 
-### Polyfills
-
-Certain important interfaces like `CustomEvent` and `TextDecoder` are not available in extremely limited environments, like `Worklet`s. Because they are necessary for this library to function, minimal polyfills are provided that you can use in these cases.
-
-```typescript
-import "basic-event-wasi/polyfill/event.js";
-import "basic-event-wasi/polyfill/custom-event.js";
-import "basic-event-wasi/polyfill/text-encoder.js";
-import "basic-event-wasi/polyfill/text-decoder.js";
-
-import { instantiate } from "basic-event-wasi/instantiate.js"
-// ...the rest of your Worklet's imports and code
-```
+Finally, if using the ***static*** `initialize` method, the third, optional parameter is the list of event handlers to add before initialization.
 
 ### Implemented imports
 
+These are the functions you can pass to your `InstantiatedWasm` during instantiation. Note that they cannot be called in isolation&mdash;just passed as imports.
+
+If the function dispatches an event, see the `event.detail` column for the available information. Note that **any writable fields on `event.detail` only ever take effect if `preventDefault` is called**, in which case any "default behavior" described does not occur.
 
 #### WASI
 
-If the function dispatches an event, the default behavior occurs if `e.preventDefault()` is not called. Otherwise, the default behavior always occurs.
 
-|Function|Event?|Default behavior|
-|--------|------|----------------|
-|`proc_exit`|✔️|Throws `AbortError` (not cancellable with `preventDefault`, and in practice a `RuntimeError` is usually thrown first anyway)|
-|`fd_write`|✔️|<ul><li>stdout: calls `console.log`</li><li>stderr: calls `console.error`</li><li>anything else: returns `badfile`</li></ul>|
-|`fd_read`|✔️|<ul><li>stdin: calls `window.prompt`</li><li>anything else: returns `badfile`</li></ul>|
-|`fd_close`|✔️|No-op|
-|`fd_seek`|✔️|No-op for stdin, stdout, stderr, returns `badfile` for other descriptors|
-|`clock_time_get`| |<ul><li>`REALTIME`: Returns `Date.now()`</li><li>`MONOTONIC`: Returns `performance.now()` if it exists, or `ENOSYS` in limited environments where it doesn't.</li><li>`PROCESS_CPUTIME_ID`: `ENOSYS`</li><li>`THREAD_CPUTIME_ID`: `ENOSYS`</li></ul>|
-|`environ_get`| |Returns `nullptr`|
-|`environ_sizes_get`| |Returns 0|
-|`__throw_exception_with_stack_trace`| |Throws the `WebAssembly.Exception`. Like `Emscripten` by itself, this will have a `message` field of type `[type: string, message?: string]`.|
-|`emscripten_notify_memory_growth`|✔️|Refreshes `cachedMemoryView`|
+|Function|Event?|Default behavior|`event.detail`|
+|--------|------|----------------|--------------|
+|`fd_write`|✔️|<ul><li>stdout: calls `console.log`</li><li>stderr: calls `console.error`</li><li>anything else: returns `badfile`</li></ul>|<ul><li>`fileDescriptor`: The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor)</li><li>`data`: An array of `Uint8Array`s representing the data requested to be written</li><li>`asString(label)`: Call to turn `data` into a string encoded as `label` (e.g. `"utf-8"`)</li></ul>|
+|`fd_read`|✔️|For `stdin` in environments where `window.prompt` exists, that is used. Otherwise, `badfile` is returned.|<ul><li>`fileDescriptor`: The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor)</li><li>`data`: A mutable array representing the data to write. Use `.push` to add strings or `Uint8Array`s to write. Data that doesn't fit in a single call to `fd_read` will become the `data` value for the next event, until nothing's left and `EOF` is set.</li></ul>|
+|`fd_close`|✔️|No-op|<ul><li>`fileDescriptor`: The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor)</li></ul>|
+|`fd_seek`|✔️|Returns `spipe` for the standard streams and `badf` for other descriptors|<ul><li>`fileDescriptor`: The [file descriptor](https://en.wikipedia.org/wiki/File_descriptor)</li><li>`offset`: The number of bytes to move by</li><li>`whence`: Whether to move absolutely (`WHENCE_SET`), relatively (`WHENCE_CUR`), or EOF-relative (`WHENCE_END`)</li><li>`newPosition`: If `preventDefault` is called, this must be set to the new position in the file (or `error` must be set).</li><li>`error`: The numeric error to return ([according to POSIX](https://linux.die.net/man/2/lseek)), if applicable</li></ul>|
+|`proc_exit`|✔️|None. It's a good idea to throw an error in this event handler, as otherwise [`unreachable`](https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Control_flow/unreachable) is executed.|<ul><li>`code`: The value passed to `std::exit` (and/or returned from `main`)</li></ul>|
+|`clock_time_get`| |<ul><li>`REALTIME`: Returns `Date.now()`</li><li>`MONOTONIC`: Returns `performance.now()` if it exists, or `ENOSYS` in limited environments where it doesn't.</li><li>`PROCESS_CPUTIME_ID`: `ENOSYS`</li><li>`THREAD_CPUTIME_ID`: `ENOSYS`</li></ul>| |
+|`environ_get`, `environ_sizes_get`|✔️|No-op, but note the `environ_get` event fires **during** `initialize`|<ul><li>`strings`: An array of `["key", "value"]` pairs that will be treated as environment strings.</li></ul>|
 
 #### Env
-|Function|Event?|Default behavior|
-|--------|------|----------------|
+|Function|Event?|Default behavior|`event.detail`|
+|--------|------|----------------|--------------|
+|`emscripten_notify_memory_growth`|✔️|Refreshes `cachedMemoryView`. Cannot be cancelled|<ul><li>`index`: Which memory has grown (always 0 currently)</li></ul> |
+|`__throw_exception_with_stack_trace`| |Throws the `WebAssembly.Exception`. Like `Emscripten` by itself, this will have a `message` field of type `[type: string, message?: string]`.|
 |`segfault`| |Throws a `SegfaultError`. Used by `-sSAFE_HEAP`.|
 |`alignfault`| |Throws an `AlignfaultError`. Used by `-sSAFE_HEAP`.|
 |`_tzset_js`| |No-op (pulled in by `#include <iostream>`)|
@@ -212,6 +227,21 @@ As a utility class, `Native[Int/Uint][8/16/32]Array` also exists (e.g. `NativeUi
 
 It is not intended to handle more complex use cases, such as `std::vector<std::string>`, especially as things like `std::string` don't satisfy `is_trivially_copyable` and thus can't be copied around byte-by-byte as described.
 
+### Polyfills
+
+Extremely limited environments, like `Worklet`s, do not implement certain important interfaces like `CustomEvent` and `TextDecoder`. Because they are necessary for this library to function, minimal polyfills are provided that you can use in these cases.
+
+```typescript
+import "basic-event-wasi/polyfill/event.js";
+import "basic-event-wasi/polyfill/custom-event.js";
+import "basic-event-wasi/polyfill/text-encoder.js";
+import "basic-event-wasi/polyfill/text-decoder.js";
+
+import { instantiate } from "basic-event-wasi/instantiate.js"
+// ...the rest of your Worklet's imports and code
+```
+
+Note that *currently* the `TextEncoder` and `TextDecoder` polyfills are restricted to ASCII-only encoding in UTF-8 and will throw if asked to produce or consume anything else, making them effectively just identity functions.
 
 ## Exception Handling
 

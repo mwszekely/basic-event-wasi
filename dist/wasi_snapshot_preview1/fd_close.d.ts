@@ -7,7 +7,7 @@ export interface FileDescriptorCloseEventDetail {
      * It's more-or-less [universally expected](https://en.wikipedia.org/wiki/Standard_stream) that 0 is for input, 1 for output, and 2 for errors,
      * so you can map 1 to `console.log` and 2 to `console.error`.
      */
-    fileDescriptor: number;
+    readonly fileDescriptor: number;
 }
 export declare class FileDescriptorCloseEvent extends CustomEvent<FileDescriptorCloseEventDetail> {
     constructor(fileDescriptor: number);

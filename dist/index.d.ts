@@ -60,11 +60,12 @@ export { writeUint32 } from "./util/write-uint32.js";
 export { writeUint64 } from "./util/write-uint64.js";
 export { writeUint8 } from "./util/write-uint8.js";
 export { InvalidArrayLengthError, NativeBigInt64Array, NativeBigUint64Array, NativeInt16Array, NativeInt32Array, NativeInt8Array, NativeUint16Array, NativeUint32Array, NativeUint8Array, NativeUint8ClampedArray } from "./native-array.js";
+export type { FileDescriptor, KnownExports, KnownImports, KnownImportsEnv, KnownImportsWasi } from "./types.js";
 export type { MemoryGrowthEvent, MemoryGrowthEventDetail } from "./env/emscripten_notify_memory_growth.js";
-export type { WebAssemblyExceptionEventDetail } from "./env/throw_exception_with_stack_trace.js";
+export type { EmscriptenException, WebAssemblyExceptionEventDetail } from "./env/throw_exception_with_stack_trace.js";
 export type { FileDescriptorCloseEvent, FileDescriptorCloseEventDetail } from "./wasi_snapshot_preview1/fd_close.js";
-export type { FileDescriptorReadEvent, FileDescriptorReadEventDetail, UnhandledFileReadEvent } from "./wasi_snapshot_preview1/fd_read.js";
-export type { FileDescriptorSeekEvent, FileDescriptorSeekEventDetail } from "./wasi_snapshot_preview1/fd_seek.js";
+export type { FileDescriptorReadEvent, FileDescriptorReadEventDetail } from "./wasi_snapshot_preview1/fd_read.js";
+export type { FileDescriptorSeekEvent, FileDescriptorSeekEventDetail, FileSeekErrors, SeekWhence } from "./wasi_snapshot_preview1/fd_seek.js";
 export type { FileDescriptorWriteEvent, FileDescriptorWriteEventDetail, UnhandledFileWriteEvent } from "./wasi_snapshot_preview1/fd_write.js";
-export type { AbortError, AbortEvent, AbortEventDetail } from "./wasi_snapshot_preview1/proc_exit.js";
+export type { ProcExitEvent, ProcExitEventDetail } from "./wasi_snapshot_preview1/proc_exit.js";
 //# sourceMappingURL=index.d.ts.map

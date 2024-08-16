@@ -17,11 +17,11 @@ export function _embind_register_class_property(
     setterIndex: number,
     setterContext: number
 ): void {
-    
+
     _embind_register(this, fieldNamePtr, async (name) => {
 
         const get = await createGlueFunction<() => unknown>(this, `${name}_getter`, getterReturnTypeId, [], getterSignaturePtr, getterIndex, getterContext);
-        const set = setterIndex? await createGlueFunction<(value: unknown) => void>(this, `${name}_setter`, 0, [setterArgumentTypeId], setterSignaturePtr, setterIndex, setterContext) : undefined;
+        const set = setterIndex ? await createGlueFunction<(value: unknown) => void>(this, `${name}_setter`, 0, [setterArgumentTypeId], setterSignaturePtr, setterIndex, setterContext) : undefined;
 
         Object.defineProperty((EmboundClasses[rawClassTypeId].prototype as unknown), name, {
             get,

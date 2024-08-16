@@ -7,8 +7,8 @@ export function _embind_register_float(this: InstantiatedWasm, typePtr: number, 
     _embind_register(this, namePtr, (name) => {
         finalizeType<number, number>(this, name, {
             typeId: typePtr,
-            fromWireType: (value) => ({ wireValue: value, jsValue: value}),
-            toWireType: (value) => ({ wireValue: value, jsValue: value}),
+            fromWireType: (value) => ({ wireValue: value, jsValue: value }),
+            toWireType: (value) => ({ wireValue: value, jsValue: value }),
         });
     });
 }

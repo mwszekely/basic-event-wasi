@@ -38,11 +38,13 @@ export declare class InstantiatedWasm<Exports extends object = object, Embind ex
      */
     cachedMemoryView: DataView;
     /**
-     * Not intended to be called directly. Use the static `instantiate` function instead, which returns one of these.
+     * **IMPORTANT**: Until `initialize` is called, no WASM-related methods/fields can be used.
      *
-     * I want to instead just return a promise here sooooooo badly...
+     * `addEventListener` and other `EventTarget` methods are fine, though, and in fact are required for events that occur during `_initialize` or `_start`.
+     *
+     * If you don't care about events during initialization, you can also just call `InstantiatedWasm.instantiate`, which is an async function that does both in one step.
      */
-    private constructor();
+    constructor();
     /**
      * Instantiates a WASM module with the specified WASI imports.
      *
@@ -55,7 +57,8 @@ export declare class InstantiatedWasm<Exports extends object = object, Embind ex
      * @param wasmFetchPromise
      * @param unboundImports
      */
-    static instantiate<Exports extends object, Embind extends object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<InstantiatedWasm<Exports, Embind>>;
+    instantiate(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, { wasi_snapshot_preview1, env, ...unboundImports }: KnownImports): Promise<void>;
+    static instantiate<Exports extends object = object, Embind extends object = object>(wasmDataOrFetcher: RollupWasmPromise | WebAssembly.Module | BufferSource | Response | PromiseLike<Response>, unboundImports: KnownImports, eventListeners?: Parameters<InstantiatedWasm<Exports, Embind>["addEventListener"]>[]): Promise<InstantiatedWasm<Exports, Embind>>;
 }
 export {};
 //# sourceMappingURL=wasm.d.ts.map

@@ -8,12 +8,12 @@ export interface FileDescriptorWriteEventDetail {
      * It's more-or-less [universally expected](https://en.wikipedia.org/wiki/Standard_stream) that 0 is for input, 1 for output, and 2 for errors,
      * so you can map 1 to `console.log` and 2 to `console.error`, with others handled with the various file-opening calls.
      */
-    fileDescriptor: number;
-    data: Uint8Array[];
+    readonly fileDescriptor: number;
+    readonly data: Uint8Array[];
+    asString(label: string): string;
 }
 export declare class FileDescriptorWriteEvent extends CustomEvent<FileDescriptorWriteEventDetail> {
     constructor(fileDescriptor: number, data: Uint8Array[]);
-    asString(label: string): string;
 }
 export declare class UnhandledFileWriteEvent extends Error {
     constructor(fd: number);

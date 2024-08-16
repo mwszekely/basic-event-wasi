@@ -4,22 +4,28 @@ export const EmboundClasses: Record<number, typeof EmboundClass> = {};
 
 
 // This is a running list of all the instantiated classes, by their `this` pointer.
-const instantiatedClasses = new Map<number, WeakRef<EmboundClass>>();
+const InstantiatedClasses = new Map<number, WeakRef<EmboundClass>>();
 
 // This keeps track of all destructors by their `this` pointer.
 // Used for FinalizationRegistry and the destructor itself.
-const destructorsYetToBeCalled = new Map<number, () => void>();
+const DestructorsYetToBeCalled = new Map<number, () => void>();
 
 // Used to ensure no one but the type converters can use the secret pointer constructor.
 export const Secret: symbol = Symbol();
 export const SecretNoDispose: symbol = Symbol();
 
-// TODO: This needs proper testing, or possibly even justification for its existence.
-// I'm pretty sure only JS heap pressure will invoke a callback, making it kind of 
-// pointless for C++ cleanup, which has no interaction with the JS heap.
+// TODO: I'm not convinced this is a good idea, 
+// though I suppose the warning is useful in deterministic environments
+// where you can break on a class having a certain `this` pointer.
+// That said I'm pretty sure only JS heap pressure will invoke a callback, 
+// making it kind of pointless for C++ cleanup, which has no interaction with the JS heap.
 const registry = new FinalizationRegistry((_this: number) => {
-    console.warn(`WASM class at address ${_this} was not properly disposed.`);
-    destructorsYetToBeCalled.get(_this)?.();
+    const destructor = DestructorsYetToBeCalled.get(_this);
+    if (destructor) {
+        console.warn(`WASM class at address ${_this} was not properly disposed.`);
+        destructor();
+        DestructorsYetToBeCalled.delete(_this);
+    }
 });
 
 /**
@@ -28,7 +34,6 @@ const registry = new FinalizationRegistry((_this: number) => {
  * In general, if two (quote-unquote) "instances" of this class have the same `_this` pointer,
  * then they will compare equally with `==`, as if comparing addresses in C++.
  */
-
 export class EmboundClass {
 
     /**
@@ -80,7 +85,7 @@ export class EmboundClass {
             // First, make sure we haven't instantiated this class yet.
             // We want all classes with the same `this` pointer to 
             // actually *be* the same.
-            const existing = instantiatedClasses.get(_this)?.deref();
+            const existing = InstantiatedClasses.get(_this)?.deref();
             if (existing)
                 return existing;
 
@@ -89,15 +94,14 @@ export class EmboundClass {
             //
             // Consider this the "actual" constructor code, I suppose.
             this._this = _this;
-            instantiatedClasses.set(_this, new WeakRef(this));
+            InstantiatedClasses.set(_this, new WeakRef(this));
             registry.register(this, _this);
 
             if (args[0] != SecretNoDispose) {
                 const destructor = new.target._destructor;
-
-                destructorsYetToBeCalled.set(_this, () => {
+                DestructorsYetToBeCalled.set(_this, () => {
                     destructor(_this);
-                    instantiatedClasses.delete(_this);
+                    InstantiatedClasses.delete(_this);
                 });
             }
 
@@ -106,10 +110,10 @@ export class EmboundClass {
 
     [Symbol.dispose](): void {
         // Only run the destructor if we ourselves constructed this class (as opposed to `inspect`ing it)
-        const destructor = destructorsYetToBeCalled.get(this._this);
+        const destructor = DestructorsYetToBeCalled.get(this._this);
         if (destructor) {
-            destructorsYetToBeCalled.get(this._this)?.();
-            destructorsYetToBeCalled.delete(this._this);
+            DestructorsYetToBeCalled.get(this._this)?.();
+            DestructorsYetToBeCalled.delete(this._this);
             this._this = 0;
         }
     }

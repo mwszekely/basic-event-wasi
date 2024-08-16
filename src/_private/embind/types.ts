@@ -36,8 +36,11 @@ export interface WireConversionResult<WireType extends WireTypes, V> {
     jsValue: V;
 
     /** 
-     * This is called, for example, when passing a JS string to a WASM function. 
-     * Once the WASM function finishes, we need to call this to free the memory used by the string.
+     * This is the type's destructor, if it has one.
+     * 
+     * This is called in stack-like contexts; for example, when passing a string
+     * as an argument to a function from JS to WASM, we "push" the string to
+     * the stack, run the function, then "pop" it off, like a normal function call.
      */
     stackDestructor?: (value: V, wire: WireType) => void;
 }
