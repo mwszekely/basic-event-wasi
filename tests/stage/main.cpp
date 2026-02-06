@@ -126,6 +126,28 @@ const TestClass *testClassArray()
     return ret.data();
 }
 
+TestClass *testClassPointerMutable()
+{
+    thread_local TestClass ret{1, "Pointer"};
+    return &ret;
+}
+
+const TestClass *testClassPointerConst()
+{
+    return testClassPointerMutable();
+}
+
+TestClass &testClassReferenceMutable()
+{
+    thread_local TestClass ret{2, "Reference"};
+    return ret;
+}
+
+const TestClass &testClassReferenceConst()
+{
+    return testClassReferenceMutable();
+}
+
 enum OldStyle
 {
     OLD_STYLE_ZERO,
@@ -270,6 +292,9 @@ EMSCRIPTEN_BINDINGS(constants)
     emscripten::function("catchesException", &catchesException);
     emscripten::function("getenv", &getenv2);
     emscripten::function("testClassArray", reinterpret_cast<std::uintptr_t (*)()>(&testClassArray));
+    emscripten::function("testClassPointerMutable", &testClassPointerMutable, return_value_policy::reference());
+    emscripten::function("testClassPointerConst", &testClassPointerConst, return_value_policy::reference());
+    emscripten::function("testClassReferenceMutable", &testClassReferenceMutable, return_value_policy::reference());
     emscripten::class_<TestClassBase>("TestClassBase")
         .constructor<int>();
     emscripten::class_<TestClass>("TestClass")

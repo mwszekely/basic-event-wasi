@@ -1,7 +1,7 @@
 {
     "type": "module",
     "scripts": {
-        "build:wasm": "em++ --std=c17 --std=c++23 -g3 -gsource-map -fwasm-exceptions -fsanitize=undefined -sSAFE_HEAP=1 -sWASM_BIGINT=1 -sALLOW_MEMORY_GROWTH -sSTANDALONE_WASM=1 -sINITIAL_HEAP=131072 -sASSERTIONS=1 -sMALLOC=\"emmalloc-debug\" -lembind -I\"../emsdk/upstream/emscripten/cache/sysroot/include\" --no-entry -o ./stage/www/js/wasm.wasm ./stage/main.cpp",
+        "build:wasm": "em++ --std=c17 --std=c++23 -g3 -gsource-map -fwasm-exceptions -fsanitize=undefined -sSAFE_HEAP=1 -sWASM_BIGINT=1 -sALLOW_MEMORY_GROWTH -sSTANDALONE_WASM=1 -sINITIAL_HEAP=131072 -sASSERTIONS=1 -sMALLOC=\"emmalloc-debug\" -lembind --no-entry -o ./stage/www/js/wasm.wasm ./stage/main.cpp",
         "serve": "npx esbuild \"./stage/*.ts\" --outdir=\"./stage/www/js\" --bundle --format=esm --sourcemap=inline --watch --serve --servedir=stage",
         "build:js": "npx esbuild \"./stage/*.ts\" --outdir=\"./stage/www/js\" --bundle --format=esm --sourcemap=inline"
     },

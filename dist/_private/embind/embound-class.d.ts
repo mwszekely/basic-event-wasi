@@ -1,6 +1,7 @@
 export declare const EmboundClasses: Record<number, typeof EmboundClass>;
 export declare const Secret: symbol;
 export declare const SecretNoDispose: symbol;
+export declare function _pendingDestructorsCount(): number;
 /**
  * Base class for all Embind-enabled classes.
  *

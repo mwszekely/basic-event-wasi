@@ -81,6 +81,9 @@ export interface EmboundTypes {
     struct_consume(n: StructTest): void;
     identity_struct_copy(n: StructTest): StructTest;
     testClassArray(): number;
+    testClassPointerMutable(): TestClass;
+    testClassPointerConst(): TestClass;
+    testClassReferenceMutable(): TestClass;
     nowSteady(): number;
     nowSystem(): number;
     throwsException(): never;

@@ -8,7 +8,7 @@ const InstantiatedClasses = new Map<number, WeakRef<EmboundClass>>();
 
 // This keeps track of all destructors by their `this` pointer.
 // Used for FinalizationRegistry and the destructor itself.
-const DestructorsYetToBeCalled = new Map<number, () => void>();
+const DestructorsYetToBeCalled = new Map<number, { owner: 'j' | 'c', destructor: () => void }>();
 
 // Used to ensure no one but the type converters can use the secret pointer constructor.
 export const Secret: symbol = Symbol();
@@ -23,10 +23,15 @@ const registry = new FinalizationRegistry((_this: number) => {
     const destructor = DestructorsYetToBeCalled.get(_this);
     if (destructor) {
         console.warn(`WASM class at address ${_this} was not properly disposed.`);
-        destructor();
+        destructor.destructor();
         DestructorsYetToBeCalled.delete(_this);
     }
 });
+
+// Internal use only, for testing
+export function _pendingDestructorsCount(): number {
+    return [...DestructorsYetToBeCalled].filter(([v, a]) => a.owner == 'j').length;
+}
 
 /**
  * Base class for all Embind-enabled classes.
@@ -56,6 +61,8 @@ export class EmboundClass {
     constructor(...args: unknown[]) {
         const CreatedFromWasm = (args.length === 2 && (args[0] === Secret || args[0] == SecretNoDispose) && typeof args[1] === 'number');
 
+        const destructor = new.target._destructor;
+
         if (!CreatedFromWasm) {
             /**
              * This is a call to create this class from JS.
@@ -70,7 +77,25 @@ export class EmboundClass {
              *
              * (In other words, this part runs first, then the `else` below runs)
              */
-            return new.target._constructor(...args);
+            const ret = new.target._constructor(...args);
+            // Ensure that we don't recreate this class from this pointer.
+            // This can happen if we pass a JS-owned pointer to C++, 
+            // and then C++ returns the same pointer.
+            InstantiatedClasses.set(ret._this, new WeakRef(ret));
+
+            // This instance was created by JS, so if/when we ever lose the reference to it
+            // we'd like to make sure it was, in fact, cleaned up.
+            // (the registry checks to prevent double-frees)
+            registry.register(this, this._this);
+
+            DestructorsYetToBeCalled.set(ret._this, {
+                owner: 'j',
+                destructor: () => {
+                    destructor(ret._this);
+                    InstantiatedClasses.delete(ret._this);
+                }
+            });       
+            return ret;
         }
         else {
             /**
@@ -95,15 +120,18 @@ export class EmboundClass {
             // Consider this the "actual" constructor code, I suppose.
             this._this = _this;
             InstantiatedClasses.set(_this, new WeakRef(this));
-            registry.register(this, _this);
 
-            if (args[0] != SecretNoDispose) {
-                const destructor = new.target._destructor;
-                DestructorsYetToBeCalled.set(_this, () => {
+            // Add the destructor to the list of available destructors.
+            // Since is a pointer to an object made by C++,
+            // we assume by default that C++ will be the one to delete it,
+            // but we opt into letting JS do so too.
+            DestructorsYetToBeCalled.set(_this, {
+                owner: 'c',
+                destructor: () => {
                     destructor(_this);
                     InstantiatedClasses.delete(_this);
-                });
-            }
+                }
+            });
 
         }
     }
@@ -112,7 +140,7 @@ export class EmboundClass {
         // Only run the destructor if we ourselves constructed this class (as opposed to `inspect`ing it)
         const destructor = DestructorsYetToBeCalled.get(this._this);
         if (destructor) {
-            DestructorsYetToBeCalled.get(this._this)?.();
+            DestructorsYetToBeCalled.get(this._this)?.destructor();
             DestructorsYetToBeCalled.delete(this._this);
             this._this = 0;
         }

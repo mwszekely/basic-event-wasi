@@ -32,8 +32,23 @@ test("Leaks in tests are detectable (test env. test)", async ({ page, wasm: { ou
   expect(grown).toBe(true);
 });
 
+test("Freeing malloced memory works (test env. test)", async ({ page, wasm: { output } }) => {
+  await page.evaluate(() => {
+    for (let i = 0; i < OOMIterations; ++i) {
+      const ptr = _wasm.exports.malloc(1);
+      _wasm.exports.free(ptr);
+    }
+  },);
+  const grown = await (page.evaluate(() => _memoryGrowth > 0));
+  expect(grown).toBe(false);
+});
+
 // This is a test to ensure that, if any code elsewhere double-frees, 
 // that whichever test references it will fail.
+//
+// TODO: This is failing occasionally and passing other times,
+// and I don't get why. It should be deterministic, surely???
+// And nothing's changed from when this used to pass, to my knowledge...
 test("Double-freeing aborts (test env. test)", async ({ page, wasm: { output } }) => {
 
   expect(await page.evaluate(() => {
@@ -41,11 +56,13 @@ test("Double-freeing aborts (test env. test)", async ({ page, wasm: { output } }
     _wasm.exports.free(m);
     try {
       _wasm.exports.free(m);
-      return false;
     }
     catch (ex) {
       return (ex instanceof WebAssembly.RuntimeError);
     }
+
+    return false;
+
   })).toBe(true);
 });
 
@@ -95,7 +112,24 @@ test("Passing/returning classes does not leak memory", async ({ page, wasm: { ou
   });
   const grown = await (page.evaluate(() => _memoryGrowth));
   expect(grown).toBe(0);
-})
+});
+
+test("Returning a statically-allocated C++ class does not mark it as needing cleanup", async ({ page, wasm: { output } }) => {
+
+  await page.evaluate(async () => {
+    for (let i = 0; i < OOMIterations; ++i) {
+      void (_wasm.embind.testClassPointerConst());
+      void (_wasm.embind.testClassPointerMutable());
+      void (_wasm.embind.testClassReferenceMutable());
+    }
+
+  });
+
+  const pendingDestructors = await (page.evaluate(() => (window as any)._pendingDestructorsCount()));
+  expect(pendingDestructors).toBe(0);
+  const grown = await (page.evaluate(() => _memoryGrowth));
+  expect(grown).toBe(0);
+});
 
 test("Passing/returning class pointers does not leak memory", async ({ page, wasm: { output } }) => {
 

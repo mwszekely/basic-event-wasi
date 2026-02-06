@@ -1,8 +1,11 @@
 //import "core-js";
 
 import { wrap } from "comlink";
+import { _pendingDestructorsCount } from "../../dist/_private/embind/embound-class.js";
 import { } from "../../dist/index.js";
 import { instantiate, StructTest } from "./instantiate.js";
+
+(window as any)._pendingDestructorsCount = _pendingDestructorsCount;
 
 const wasm = await instantiate("Main");
 document.getElementById("ready-main")!.innerHTML = "✔️";
@@ -23,6 +26,20 @@ const worker = wrap<{ execute(func: string): unknown }>(w);
 document.getElementById("ready-worker")!.innerHTML = "✔️";
 (globalThis as any)._worker = worker;
 (globalThis as any)._wasm = wasm;
+
+/*
+const cls2 = new _wasm.embind.TestClass(5, "test");
+    for (let i = 0; i < 50; ++i) {
+      const returned = _wasm.embind.TestClass.identityCopy(cls2);
+      if (returned == cls2)
+        throw new Error("Expected copy to return a different instance of the class");
+      returned[Symbol.dispose]();
+    }
+    cls2[Symbol.dispose]();
+
+(globalThis as any)._wasm.embind.testClassPointerConst()*/
+
+
 /*
 _wasm.addEventListener("fd_read", e => {
     e.preventDefault();
