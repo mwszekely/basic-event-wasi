@@ -73,6 +73,9 @@ export interface EmboundTypes {
     identity_u64(n: bigint): bigint;
     identity_i64(n: bigint): bigint;
     identity_string(n: string): string;
+    //identity_u8string(n: string): string;
+    identity_u16string(n: string): string;
+    identity_u32string(n: string): string;
     identity_wstring(n: string): string;
     identity_old_enum(n: any): string;
     identity_new_enum(n: any): string;

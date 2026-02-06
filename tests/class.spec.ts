@@ -14,11 +14,18 @@ test('Class destructor', async ({ page, wasm: { output } }) => {
   });
 });
 
-test('Class property getter', async ({ page, wasm: { output } }) => {
+test('Class property getter (JS-owned)', async ({ page, wasm: { output } }) => {
   expect(await page.evaluate((i) => {
     const cls = new _wasm.embind.TestClass(5, "test");
     return cls.x;
   })).toBe(5);
+});
+
+test('Class property getter (C++-owned)', async ({ page, wasm: { output } }) => {
+  expect(await page.evaluate((i) => {
+    const cls = _wasm.embind.testClassPointerConst();
+    return cls.x;
+  })).toBe(1);
 });
 
 test('Class property setter', async ({ page, wasm: { output } }) => {

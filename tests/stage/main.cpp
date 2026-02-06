@@ -116,6 +116,9 @@ std::int32_t identity_i32(std::int32_t value) { return value; }
 std::uint64_t identity_u64(std::uint64_t value) { return value; }
 std::int64_t identity_i64(std::int64_t value) { return value; }
 std::string identity_string(std::string value) { return value; }
+//std::u8string identity_u8string(std::u8string value) { return value; }
+std::u16string identity_u16string(std::u16string value) { return value; }
+std::u32string identity_u32string(std::u32string value) { return value; }
 std::wstring identity_wstring(std::wstring value) { return value; }
 int *identity_intptr(int *value) { return value; }
 
@@ -274,6 +277,9 @@ EMSCRIPTEN_BINDINGS(constants)
     emscripten::function("identity_u64", &identity_u64);
     emscripten::function("identity_i64", &identity_i64);
     emscripten::function("identity_string", &identity_string);
+    //emscripten::function("identity_u8string", &identity_u8string);
+    emscripten::function("identity_u16string", &identity_u16string);
+    emscripten::function("identity_u32string", &identity_u32string);
     emscripten::function("identity_wstring", &identity_wstring);
     emscripten::function("identity_old_enum", &identity_old_enum);
     emscripten::function("identity_new_enum", &identity_new_enum);

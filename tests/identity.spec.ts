@@ -71,6 +71,24 @@ test('Identity string works', async ({ page, wasm: { output } }) => {
   await expect(output).toHaveText(t.toString());
 });
 
+/*test('Identity u8string works', async ({ page, wasm: { output } }) => {
+  const t = "Test string ✔️";
+  await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u8string(i).toString(), t);
+  await expect(output).toHaveText(t.toString());
+});*/
+
+test('Identity u16string works', async ({ page, wasm: { output } }) => {
+  const t = "Test string ✔️";
+  await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u16string(i).toString(), t);
+  await expect(output).toHaveText(t.toString());
+});
+
+test('Identity u32string works', async ({ page, wasm: { output } }) => {
+  const t = "Test string ✔️";
+  await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_u32string(i).toString(), t);
+  await expect(output).toHaveText(t.toString());
+});
+
 test('Identity wstring works', async ({ page, wasm: { output } }) => {
   const t = "Test string ✔️";
   await page.evaluate((i) => (window as any).output.innerHTML = _wasm.embind.identity_wstring(i).toString(), t);

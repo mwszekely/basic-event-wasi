@@ -75,7 +75,11 @@ wasm.embind.struct_consume(structTest)
 const s = wasm.embind.struct_create();
 //console.log(s);
 //s[Symbol.dispose]();
-wasm.embind.identity_string("test string");
+wasm.embind.identity_string("test string✔");
+debugger;
+//wasm.embind.identity_u8string("✔test string✔");
+wasm.embind.identity_u16string("✔test string✔");
+wasm.embind.identity_u32string("✔test string✔");
 ((globalThis as any)._memoryGrowth) = 0;
 wasm.addEventListener("MemoryGrowthEvent", () => { ((globalThis as any)._memoryGrowth) += 1 });
 

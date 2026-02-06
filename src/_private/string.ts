@@ -75,7 +75,7 @@ export function stringToUtf8(string: string): ArrayBuffer {
 }
 
 export function stringToUtf16(string: string): ArrayBuffer {
-    const ret = new Uint16Array(new ArrayBuffer(string.length));
+    const ret = new Uint16Array(new ArrayBuffer(string.length * 2));
     for (let i = 0; i < ret.length; ++i) {
         ret[i] = string.charCodeAt(i);
     }
@@ -84,9 +84,11 @@ export function stringToUtf16(string: string): ArrayBuffer {
 
 export function stringToUtf32(string: string): ArrayBuffer {
     let trueLength = 0;
-    // The worst-case scenario is a string of all surrogate-pairs, so allocate that.
-    // We'll shrink it to the actual size afterwards.
-    const temp = new Uint32Array(new ArrayBuffer(string.length * 4 * 2));
+    // The worst-case string is one of all surrogate pairs.
+    // E.G. "🤓".length is 2, but it only takes one char32_t.
+    // We'll allocate the full length of the string,
+    // but we might end up needing to shrink it afterwards.
+    const temp = new Uint32Array(new ArrayBuffer(string.length * 4));
     for (const ch of string) {
         temp[trueLength] = ch.codePointAt(0)!;
         ++trueLength;
